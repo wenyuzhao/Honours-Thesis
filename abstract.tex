@@ -1,7 +1,25 @@
 \chapter*{Abstract}
 \addcontentsline{toc}{chapter}{Abstract}
 \vspace{-1em}
-Put your abstract here.
+
+The Garbage-First family of garbage collectors, including Garbage-first GC,
+Shenandoah GC and ZGC, are region-based concurrent collectors designed for
+large heaps to archive lower latency and mutator overhead. However, analysis,
+measurements and comparisons between their OpenJDK implementations can be
+hard since the implementations do not share too much code and have different
+level of optimizations. This article attempts to perform a detailed and
+careful analysis of these collectors at an algorithmic level by implementing
+them upon the same hierarchy on JikesRVM. We evaluate the footprint overheads,
+mutator latency and barrier overheads for these collectors. Our results show
+that by using remembered-sets, G1 has \pending{???}\% average footprint overhead
+and G1, Shenandoah has barrier overheads of \pending{???}\% and \pending{???}\%
+respectively on the DaCapo benchmark suite. We also find that by using Brooks
+style indirection pointers, Shenandoah and ZGC has average barrier overheads
+of \pending{???}\% and \pending{???}\%. The costs and overheads revealed in these
+garbage collectors can help garbage collection algorithm designers to identify
+the main advantages and drawbacks of region-based concurrent collectors and
+hence have the ability to make further refinements and optimizations to them. In
+additon, the relationships this paper discussed in the 
 
 %%% Local Variables: 
 %%% mode: latex
