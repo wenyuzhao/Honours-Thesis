@@ -1,18 +1,44 @@
 \chapter{Background and Related Work}
 \label{cha:background}
-At the begging of each chapter, please introduce the motivation and high-level
-picture of the chapter. You also have to introduce sections in the
-chapter. \\
+
+This chapter describes the background and basic ideas of several garbage collectors,
+particularly those targeting the java virtual machine and are implemented in OpenJDK or JikesRVM,
+as well as the differences among several garbage collection techniques.
+
+In addition, this chapter also performed a general discussion of the related work
+on analyzing region-based garbage collectors.
+\\\\
+Section~\ref{sec:gcalgorithms} roughly discusses and compares different class of GC algorithms.
+\\\\
+Section~\ref{sec:g1collectors} describes the general design of the Garbage-first family of garbage collectors.
+\\\\
+Section~\ref{sec:relatedwork} describes the related work on analyzing region-based garbage collectors.
+\\\\
+\section{Categories of GC algorithms}
+\label{sec:gcalgorithms}
+
+This section discusses the main classes of garbage collection algorithms, as well
+as their pros and cons.
+
+\subsection{Reference counting}
 
 
-Section~\ref{sec:motivation} xxxx.\\
+
+\subsection{Mark \& sweep GC}
 
 
-Section~\ref{sec:relatedwork} yyyy.\\
+
+\subsection{Copying GC}
 
 
-\section{Motivation}
-\label{sec:motivation}
+
+\section{Garbage-First family of garbage collectors}
+\label{sec:g1collectors}
+
+\subsection{Garbage-First GC}
+
+\subsection{Shenandoah GC}
+
 
 
 \section{Related work}
@@ -26,12 +52,10 @@ shortname: gives an optional short name for a conference like PLDI '08.)
 
 
 
-
-
 \section{Summary}
-Summary what you discussed in this chapter, and mention the story in next
-chapter. Readers should roughly understand what your thesis takes about by only reading
-words at the beginning and the end (Summary) of each chapter.
 
+In this section we introduced the background and basic ideas of several garbage collectors and
+also performed a general discussion of the related work on analyzing region-based garbage collectors.
 
-
+Next chapter will briefly describe the implementation environment of the collectors implemented
+in this thesis, including the high-level design of JikesRVM and MMTk.

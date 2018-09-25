@@ -1,74 +1,133 @@
 \chapter{Introduction}
 \label{cha:intro}
 
+% Garbage-First GC, Shenandoah GC and ZGC are three major concurrent garbage
+% collectors. They are designed to deduce latency of mutators on large heaps.
+% All of these garbage collectors divide heap into regions and all performs marking and
+% evacuation processes.
+% All of these region-base GCs use the Snapshot-at-the-beginning algorithm to concurrently marking
+% live objects in the heap \cite{yuasa1990real}.
+% However, their evacuation techniques are different. Garbage-First performs stop-the-world partial
+% evacuation to evacuate and release a set of regions which contains most garbage, by using
+% remembered-sets (\cite{detlefs2004garbage}).
+% It uses remembered-set to remember cross-region pointers for each region.
+% Instead of full heap tracing to update references after evacuation, G1 reduces
+% mutator latency by performing partial heap tracing starting from roots and
+% remembered-sets to update references. Shenandoah ang ZGC further make the whole
+% evacuation and updating references phases concurrent by using the Brooks style
+% indirection pointer. To assist with the concurrent evacuation, Shenandoah uses
+% "Object reference use barriers" while ZGC uses "Object reference load barriers".
+% By performing concurrent evacuation, the latency time for Shenandoah and ZGC is
+% much shorter and is not proportional to the heap size.
 
-\section{Thesis Statement}
-\label{sec:thesisstatement}
-1. Relationship 
-2. Refinement
+% In order to make detailed and careful analysis on these collectors, we started
+% from implementing a simple stop-the-world and region-based GC, and made
+% progressive refinements on it to implemented concurrent-marking region-based GC,
+% Garbage-First GC, Shenandoah GC and ZGC. All of these garbage collectors share
+% the same implementation of the region-based heap structure, allocators and
+% concurrent marking phase (excepted for the stop-the-world region-based GC). In
+% order to compare these collectors at an algorithmic level, the implementations
+% are as close as possible to the design of their original papers.
 
-I believe A is better than B.\\
-You could use \textbackslash fix\{ABCDEFG.\} to
-leave your comments, see the box at the left side. \fix{You have to rewrite your
-thesis!!!} 
+% We evaluated the footprint overhead for the remembered-sets of the Garbage-First
+% GC. We found that remembered-sets can take up to \pending{???}\% of the total
+% heap. We also evaluated the Brooks barriers overhead for Shenandoah GC and ZGC, the latency
+% time and the snapshot-at-the-beginning (SATB) barrier time for all collectors
+% on the DaCapo benchmark suite. SATB barriers can increase the mutator overhead
+% by \pending{???}\%. Brooks barriers increase the mutator overhead of Shenandoah by
+% \pending{???}\%. By replacing SATB barrier and Brooks barriers with a simple load
+% barrier, ZGC shortens the barrier overhead to \pending{???}\%.
 
-\section{Introduction}
-\label{sec:problemstatement}
+% The costs and overheads revealed in these three Garbage-First family of garbage
+% collectors can help garbage collection algorithm designers to identify the main
+% pros and cons of region-based concurrent collectors and hence enables the
+% possibility to make further refinements and optimizations to them.
 
+\section{Motivation}
 As the memory size of modern server machines becomes larger, latency time of
 garbage collectors for managed programming languages generally becomes longer.
-In this way, the designing low-latency real-time garbage collectors has become
+In this way, the designing of low-latency garbage collectors has become
 a hot topic today. This involves reducing the latency of collectors and
 performing heap compaction or evacuation to avoid heap fragmentation.
 
-Garbage-First GC, Shenandoah GC and ZGC are three major concurrent garbage
-collectors. They are designed to deduce latency of mutators on large heaps.
-All of these garbage collectors divide heap into regions and all use the
-Snapshot-at-the-beginning algorithm to concurrently marking
-live objects in the heap \cite{yuasa1990real}. Garbage-First performs stop-the-world partial
-evacuation to evacuate and release a set of regions which contains most garbage.
-It uses remembered-set to remember cross-region pointers for each region.
-Instead of full heap tracing to update references after evacuation, G1 reduces
-mutator latency by performing partial heap tracing starting from roots and
-remembered-sets to update references. Shenandoah ang ZGC further make the whole
-evacuation and updating references phases concurrent by using the Brooks style
-indirection pointer. To assist with the concurrent evacuation, Shenandoah uses
-"Object reference use barriers" while ZGC uses "Object reference load barriers".
-By performing concurrent evacuation, the latency time for Shenandoah and ZGC is
-much shorter and is not proportional to the heap size.
+As the three major concurrent region-based garbage collectors in OpenJDK,
+Garbage-First GC and Shenandoah GC share most of their collection policies and techniques.
+Both of these two GCs were designed to deduce latency of mutators on large heaps.
+They share the same heap structure which divides the heap up into regions.
+During GC cycle, both of these two GCs perform similar marking and
+heap compaction processes.
+Although the specific algorithms and implementation details are very, these two
+GCs reveal strong relationships to each other and share plenty of common parts and general ideas.
+
+These Garbage-First family of garbage collectors were designed to reduce GC latencies,
+their performances sometimes can be unsatisfactory. Sometimes GC time of region-based collectors
+can take up to 50\% of the total execution time of Big Data systems (\cite{briandemsky2015speculative}).
+In this way it is necessary to perform careful analysis of the pros and cons for the 
+Garbage-First family of garbage collectors, especially on an algorithmic level.
 
 However, analyzing the original implementations of these three garbage
 collectors on OpenJDK is difficult. These three collectors are implemented by
 different teams and do not share too much code among the implementations. Also,
-since Garbage-First is production ready while Shenandoah GC and ZGC are not,
-optimizations among their implementations varies a lot. Thus analyzing the
-original OpenJDK implementations becomes impossible.
+since Garbage-First is production ready while Shenandoah GC is still provided as an
+experimental GC option in OpenJDK, optimizations among their implementations varies a lot.
+Thus analyzing the original OpenJDK implementations becomes impossible.
+
+This thesis aims to perform an more careful analysis and comparison among all the 
+Garbage-First family of garbage collectors by implementing these collectors on JikesRVM
+and sharing as much implementation as possible.
+
+\section{Approach}
 
 In order to make detailed and careful analysis on these collectors, we started
 from implementing a simple stop-the-world and region-based GC, and made
-progressive refinements on it to implemented concurrent-marking region-based GC,
-Garbage-First GC, Shenandoah GC and ZGC. All of these garbage collectors share
-the same implementation of the region-based heap structure, allocators and
-concurrent marking phase (excepted for the stop-the-world region-based GC). In
-order to compare these collectors at an algorithmic level, the implementations
+progressive refinements on it to implement a linear-scan evacuation GC,
+a concurrent-marking GC, the Garbage-First GC and Shenandoah GC.
+All of these garbage collectors share the same implementation of the region-based
+heap structure, allocators and concurrent marking phase
+(excepted for the stop-the-world region-based GC).
+In order to compare these collectors at an algorithmic level, the implementations
 are as close as possible to the design of their original papers.
 
 We evaluated the footprint overhead for the remembered-sets of the Garbage-First
-GC. We found that remembered-sets can take up to \pending{???}\% of the total
-heap. We also evaluated the Brooks barriers overhead for Shenandoah GC and ZGC, the latency
+GC. We also evaluated the Brooks barriers overhead for Shenandoah GC, the latency
 time and the snapshot-at-the-beginning (SATB) barrier time for all collectors
-on the DaCapo benchmark suite. SATB barriers can increase the mutator overhead
-by \pending{???}\%. Brooks barriers increase the mutator overhead of Shenandoah by
-\pending{???}\%. By replacing SATB barrier and Brooks barriers with a simple load
-barrier, ZGC shortens the barrier overhead to \pending{???}\%.
+on the DaCapo benchmark suite.
 
-The costs and overheads revealed in these three Garbage-First family of garbage
-collectors can help garbage collection algorithm designers to identify the main
-pros and cons of region-based concurrent collectors and hence enables the
-possibility to make further refinements and optimizations to them.
+All work were done in JikRVM, a research purpose Java virtual machine and MMTk,
+a memory management took written in java (\cite{blackburn2004oil}).
+
+\section{Contribution}
+
+Five different Garbage-First family of garbage collectors were implemented to reveal
+the relationships among them and demonstrate different kinds of garbage collection
+algorithms, such as concurrent marking, remembered-sets and Brooks barriers.
+
+Detailed and careful analysis on barrier latency and GC pause time was made to
+assist with comparisons among these collectors.
+We found that concurrent marking reduces the average GC pause time by \pending{???}\%
+where linear scanning evacuation can increase the average GC pause time by \pending{???}\%.
+However, the use of card scanning can reduces the GC pause time up to \pending{???}\%.
+As the result of barrier latency analysis, we found that SATB barriers can
+increase the mutator overhead by \pending{???}\% where Brooks barriers
+increase the mutator overhead of Shenandoah by \pending{???}\%.
 
 \section{Thesis Outline}
-\label{sec:outline}
-How many chapters you have? You may have Chapter~\ref{cha:background},
-Chapter~\ref{cha:design}, Chapter~\ref{cha:methodology},
-Chapter~\ref{cha:result}, and Chapter~\ref{cha:conc}.
+
+Chapter~\ref{cha:background} provides an general background and an overview of the Garbage-First family of garbage collectors.
+Similarities and differences among current collectors in OpenJDK are discussed,
+especially those region-based collectors.
+\\\\
+Chapter~\ref{cha:platform} roughly describes the platform details where the all Garbage-First
+family of garbage collectors were implemented and evaluated.
+\\\\
+Chapter~\ref{cha:implementation} provides the detailed steps and algorithms of the implementation of
+all the Garbage-First family of garbage collectors.
+\\\\
+Chapter~\ref{cha:methodology} 5 describes the methodology of testing and evaluating the implemented collectors.
+Including the benchmark used and the detailed steps of the evaluation.
+\\\\
+Chapter 6 presents the results of the evaluation and benchmarking on the implemented collectors,
+as well as results from some other collectors in MMTk as a comparison.
+\\\\
+Chapter 7 performs detailed and critical discussion on the evaluation results of the
+implemented collectors. Some recommendations for algorithm improvements are also provided.

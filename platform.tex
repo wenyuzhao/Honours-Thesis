@@ -1,0 +1,52 @@
+\chapter{JikesRVM and MMTk}
+\label{cha:platform}
+
+This chapter describes the general design and structure of the platform where the all Garbage-First
+family of garbage collectors were implemented and evaluated. This includes JikesRVM
+and MMTk.
+\\\\
+Section~\ref{sec:jikesrvm} describes the design of JikesRVM, especially the Java object memory model.
+\\\\
+Section~\ref{sec:mmtk} describes the design of MMTk, as well as its important structures.
+\\\\
+
+\section{JikesRVM}
+\label{sec:jikesrvm}
+
+JikesRVM is a research purpose Java virtual machine. It is a meta-circular JVM
+which is implemented in the Java programming language and is self hosted.
+JikesRVM was designed to provide a flexible open sourced test-bed to
+experiment with virtual machine related algorithms and technologies.
+
+In stead of executing Java programs by directly interpreting the Java byte code,
+JikesRVM compiles them into machine code and executes them.
+During the build time, JikesRVM requires a hosting JVM to run the boot image compiler
+to compile the whole JikesRVM into machine code.
+Then during running time, when loading Java class files and invoking java methods,
+JikesRVM will compile the related Java byte code into corresponding machine code and execute it.
+
+JikesRVM implemented two tiers of compilers, the baseline compiler and the optimizing compiler.
+The baseline compiler simply translates the Java byte code into machine code and do no
+optimizations while the optimizing compiler performs several optimizations during the
+code generation phase. The targeting machine of JikesRVM includes Inter x86 computers
+and the IBM PowerPC.
+
+\subsection{Object model}
+
+The core part of the memory structure of JikesRVM is the Java object memory model.
+
+
+
+\section{MMTk}
+\label{sec:mmtk}
+
+\subsection{Plan, collectors and mutators}
+
+\subsection{Space and allocators}
+
+\section{Summary}
+
+In this section we discussed the general design and structure of JikesRVM and MMTk.
+Based on the MMTk and the design of Java object memory model, the next chapter will
+describe the implementation detail of all the Garbage-First family of garbage collectors
+discussed in this thesis.

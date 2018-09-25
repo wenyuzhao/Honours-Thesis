@@ -1,12 +1,5 @@
 \chapter{Implementations and Refinements}
-\label{cha:methodology}
-
-In this chapter, we discuss the motivation of performing the implementations,
-the general design of the GC implementations,
-the implementation details for all the garbage collectors,
-each step of the progressive refinements as well as the relationships between these collectors.
-
-\section{Motivation}
+\label{cha:implementation}
 
 The original Garbage-First GC has become the default garbage collectors since Java 9
 while the Shenandoah GC and ZGC implementations are still not production
@@ -15,10 +8,31 @@ of these collectors are at a different optimization level and do not share too
 much code even they have similar marking barriers, heap structures and allocation policies.
 
 In order to erase the implementation differences between these collectors and perform
-a pure algorithmic level analysis between them, we implemented Garbage-First GC and
-Shenandoah GC on JikesRVM, by using the Memory Management Toolkit (MMTk).
+a careful and pure algorithmic level comparison and analysis among them, we implemented
+several  Garbage-First family of garbage collectors on JikesRVM, by using the Memory Management Toolkit (MMTk).
+
+In this chapter, we discuss the motivation of performing the implementations,
+the general design of the GC implementations,
+the implementation details for all the garbage collectors,
+each step of the progressive refinements as well as the relationships between these collectors.
+\\\\
+Section~\ref{sec:generaldesign} describes the general and high-level design of the
+implementation procedure.
+\\\\
+Section~\ref{sec:simpleregiongc} describes the implementation details of a simple region-based GC.
+\\\\
+Section~\ref{sec:linearscangc} describes the implementation of a refinement of the simple region-based GC that uses linear scanning during evacuation.
+\\\\
+Section~\ref{sec:concmarkgc} describes the implementation of a refinement that performs object marking concurrently.
+\\\\
+Section~\ref{sec:g1gc} describes the details of implementing the Garbage-First GC
+\\\\
+Section~\ref{sec:shenandoahgc} describes the details of implementing the Shenandoah GC
+
+
 
 \section{General Design}
+\label{sec:generaldesign}
 
 We started from implementing a simple region-based GC which divides the whole java heap
 up into fix sized regions and performs fully stop-the-world but parallel object marking
@@ -46,6 +60,7 @@ among the implementations of these collectors. Which enables the possibility for
 algorithmic-level analysis on these garbage collectors.
 
 \section{Simple Region-based GC}
+\label{sec:simpleregiongc}
 
 This simple region-based GC is provided as a baseline for future refinements. It contains
 most basic structures of the Garbage-First family of garbage collectors such as
@@ -189,6 +204,7 @@ At the end of the verification process, we can assert that the whole java heap i
 not broken and is in the correct status.
 
 \section{Linear Scan Evacuation}
+\label{sec:linearscangc}
 
 Since both Garbage-First and Shenandoah GC use heap linear scanning for evacuation,
 we implemented a linear-scan evacuation version of the simple region-based GC.
@@ -213,6 +229,7 @@ The modular design of this collectors enables the future refinements on some spe
 phases, e.g. concurrent marking, remembered-set based evacuation or concurrent evacuation.
 
 \section{Concurrent Marking}
+\label{sec:concmarkgc}
 
 Another refinement we did is to make the marking phase executes mostly in concurrent to reduce the
 mutator latency caused by the stop-the-world object marking.
@@ -279,6 +296,7 @@ detailed performance impact of the Garbage-First and Shenandoah GC due to the SA
 \end{figure}
 
 \section{Garbage-First GC}
+\label{sec:g1gc}
 
 Garbage-First (G1) GC (\cite{detlefs2004garbage}) was originally designed by Oracle to replace
 the old Concurrent Mark and Sweep GC. G1 GC was designed to target large heap but
@@ -483,6 +501,7 @@ at the end of every young GC to find a more appropriate Eden size ratio so that
 the collector can performs better in meeting the pause time goal during future young GCs.
  
 \section{Shenandoah GC}
+\label{sec:shenandoahgc}
 
 Shenandoah GC is a experimental garbage collector and is originally implemented on OpenJDK.
 Shenandoah GC is designed to reduce GC pause times for large heaps and tries to make the GC pause
@@ -667,6 +686,13 @@ we also performs another CAS operation where the old value is the indirection po
 The last phase of Shenandoah GC is the concurrent cleanup phase, during which the
 collector concurrently visits each region in the collection set, clear their metadata
 and release these regions. This phase runs in concurrent without pausing mutators.
+
+
+
+\section{Summary}
+\todo{Summary what you discussed in this chapter, and mention the story in next
+chapter. Readers should roughly understand what your thesis takes about by only reading
+words at the beginning and the end (Summary) of each chapter.}
 
 %%% Local Variables: 
 %%% mode: latex
