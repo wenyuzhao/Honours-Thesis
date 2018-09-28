@@ -1,0 +1,93 @@
+\chapter{Performance Evaluation}
+\label{cha:evaluation}
+
+This chapter discusses the performance evaluation we undertaken for analyzing
+the Garbage-First family of garbage collectors.
+This chapter will firstly discusses the software and hardware platform we used for benchmarking,
+Then the detailed evaluation process and resutls of both pause time and
+barrier latency will be presented and discussed.
+
+
+\section{The Dacapo Benchmark} % 2
+
+We performed all the following pause time evacuations and barrier latency evaluation
+by using the Dacapo Benchmark. The benchmarking suites we 
+
+\section{Hardware Platform} % 2
+
+During the implementation of all the G1 family of garbage collectors in chapter~\ref{cha:implementation},
+a list of machine with a large varities on CPU types, clock, number of processors and
+the size of cache and memory were involved, as shown in Table~\ref{tab:machines}.
+By executing all the benchmarking suite of the Dacapo Benchmark on these different machines,
+and thanks to the benchmarking suites of the Dacapo Benchmark which reflect
+that different categories of programs in the real world,
+we has the ability to statistically verify the correctness of the prevously
+implemented garbage collectors (in chapter~\label{cha:implementation})
+and make sure they performs as intended in a real world setting.
+
+For further performance evaluation, we chose the "fisher" machine for benchmarking.
+
+\begin{table*}
+  \centering
+  \label{tab:machines}
+  \input table/machines.tex
+  \caption{Machines used for development and evaluation.}
+\end{table*}
+
+\section{Pause Time Evaluation} % 7
+\label{sec:pausetimeevaluation}
+\subsection{MMTk harness callbacks}
+\subsection{Mutator latency timer}
+\subsection{Results}
+\subsection{Discussion}
+
+
+\section{Barrier Latency Evaluation} % 7
+\label{sec:barrierlatencyevaluation}
+\subsection{Methodology}
+\subsection{Snapshot-at-the-begining barriers}
+\subsection{Remembered set barriers}
+\subsection{Brooks indirection pointer barriers}
+\subsection{Discussion}
+
+\section{Summary} % 2
+\label{sec:summary}
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "paper"
+%%% End: 
+
+
+% We can also refer to specific lines of code in code listings. The bug in
+% \Cref{fig:c:hello} is on \cref{line:bug}. There is also a bug in
+% \Cref{fig:java:hello} on \crefrange{line:jbug-start}{line:jbug-end}. To
+% achieve these references we put
+% \texttt{(*@ \textbackslash label\{line:bug\} @*)}
+% in the code -- the \texttt{(*@ @*)} are escape delimiters that allow you to add
+% LaTeX in the (otherwise verbatim) code file.
+
+% \begin{table*}
+%   \centering
+%   \caption{Processors used in our evaluation.  Note that the caption for a table is at the top.  Also note that a really long comment that wraps over the line ends up left-justified.}
+%   \label{tab:machines}
+%   \input table/machines.tex
+% \end{table*}
+
+% \begin{figure}
+%   \centering
+%   \begin{subfigure}[b]{\textwidth}
+%       \lstinputlisting[linewidth=\textwidth,breaklines=true]{code/hello.c}
+%       \caption{C}
+%       \label{fig:c:hello}
+%   \end{subfigure}
+
+%   \begin{subfigure}[b]{\textwidth}
+%       \lstinputlisting[linewidth=\textwidth,breaklines=true]{code/hello.java}
+%       \caption{Java}
+%       \label{fig:java:hello}
+%   \end{subfigure}
+
+%   \caption{Hello world in Java and C. This short caption is centered.}
+%   \label{fig:helloworld}
+% \end{figure}

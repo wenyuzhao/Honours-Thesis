@@ -1,0 +1,46 @@
+\chapter{Future Work}
+\label{cha:future}
+
+This chapter will discusses the future work we plan to do after the completion
+of thie thesis. It mainly includes:
+$1.$ Resolve a data rece problem for Shenandoah GC.
+$2.$ Perform some optimizations
+$3.$ Start wkring on ZGC.
+
+\section{Race Problem for Shenandoah GC}
+
+Currently our implementation of Shenandoah GC has a data race problem.
+Based on our previous analysis, the mutator is not lock and release a monitor
+expectedly during the concurrent phase of the Shenandoah GC, when there can be
+two different copies of an object exist in the heap.
+
+Duo to the time scope of thie thesis, we cannot solve this issue currently.
+But we have implemented a work-around in the Shenandoah GC, with lower performance.
+As the most urgent problem we are facing, we plan to solve this issue at first after
+this project.
+
+\section{Optimizations}
+
+We are still considering the possibility to make the implemented Garbage-first
+and Shenandoah GC  become production ready. One major part missing is the Optimizations
+since the development of these garbage collectors was following the original design
+of these collectors and did not have too much optimizations. After performing some
+optimizations on these collectors as well as some additional correctness verfication,
+the collector can have the possibility to become production ready.
+
+\section{ZGC}
+
+Due to the time scope of this project, we did not implement and measure ZGC.
+In addition, since JikesRVM and MMTk only supports the 32bit address space but the pointer
+coloring process in ZGC requires the 64bit address space, this makes the implementation
+of ZGC more difficult.
+But as a latest member of the Garbage-first family of collectors, ZGC is
+worth for implementation and measurements.
+However, a detailed plan of resolving several hardware incompactabilities should be done in the future,
+before starting the implementation of ZGC.
+
+\section{Summary}
+
+This chapter will discusses the future work we plan to do after the completion
+of thie thesis. The next chapter contains the conclusion we obtained from the
+development and the analysis results of the Garbage-first family of garbage collectors.
