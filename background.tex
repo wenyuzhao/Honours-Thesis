@@ -18,13 +18,13 @@ Section~\ref{sec:relatedwork} describes the related work on analyzing region-bas
 \section{JikesRVM and MMTk}
 
 The whole project discussed in this thesis are based on JikesRVM and all the garbage collectors
-we implemented and evaluated in this project are all implemented by using MMTk.
-In this section we will briefly discuss the design of JikesRVM and MMTk,
+I implemented and evaluated in this project are all implemented by using MMTk.
+In this section I will briefly discuss the design of JikesRVM and MMTk,
 as well as some description on the general structure of them.
 
 \subsection{JikesRVM}
 
-JikesRVM is a research purpose Java virtual machine. It is a meta-circular JVM
+JikesRVM is a research purpose Java virtual machine and was firstly released by \cite{alpern2005jikes}. It is a meta-circular JVM
 which is implemented in the Java programming language and is self hosted.
 JikesRVM was designed to provide a flexible open sourced test-bed to
 experiment with virtual machine related algorithms and technologies.
@@ -34,7 +34,7 @@ JikesRVM compiles them into machine code for execution.
 JikesRVM implemented two tiers of compilers, the baseline compiler and the optimizing compiler.
 The baseline compiler simply translates the Java byte code into machine code and do no
 optimizations while the optimizing compiler performs several optimizations during the
-code generation phase. We performed all benchmarking and analysis works on the
+code generation phase. I performed all benchmarking and analysis works on the
 optimized build of the JikesRVM.
 
 \subsection{MMTk}
@@ -51,7 +51,7 @@ MMTk will decide which space the object belongs to and allocate memory from that
 All of the G1 family of garbage collectors involved in this thesis involves two major phases,
 the marking phase and the evecuation phase.
 Instead of using the MMTk's pre-defined \textjava{PREPARE -> SCAN ROOTS -> CLOSURE -> RELEASE}
-collection phase which only performs a single tracing on the heap, we extended this
+collection phase which only performs a single tracing on the heap, I extended this
 to perform a seperate full or partial heap tracing or linear scanning phase for
 evacuation and reference updating.
 
@@ -59,7 +59,7 @@ MMTk will check for stop-the-world or concurrent garbage collection after each
 requested space allocation.
 This involves the invocation of methods \textjava{collectionRequired(...)}
 and \textjava{concurrentCollectionRequired(...)}.
-We made full use of these two methods,
+I made full use of these two methods,
 not only for checking whether a collection is required,
 but also performs switching between different schedule of collection phases
 for either nursery or mature collection for the G1 collector.
@@ -222,27 +222,65 @@ barriers.
 \section{Related Work}
 \label{sec:relatedwork}
 
-\subsection{Implementations of the G1 family of collectors}
+\subsection{Implementations and Evaluations of the G1 family of collectors}
 
-All of the three major G1 family of collectors has been implemented in OpenJDK.
-\cite{detlefs2004garbage} demostrates the basic algorithm and the original design
-of the Garbage-First collector.
+The current working G1 family of garbage collectors implemented for modern Java Virtual Machines
+includes the Garbage-first GC, Shenandoah GC and ZGC.
+All of these three major collectors are implemented in OpenJDK.
+
+\cite{detlefs2004garbage} designed and evaluated the basic algorithm of the Garbage-First collector,
+including the original design of the pure(non-generational) and generational version
+of G1 GC. Based on this, G1 GC was firstly implemented and released as an alternative
+experimental GC for OpenJDK 7. \cite{flood2016shenandoah} designed the basic algorithm
+of the Shenandoah garbage collector.
+Based on this, Shenandoah GC was firstly implemented as an alternative experimental GC for OpenJDK 8.
+ZGC is a new garbage collector designed and implemented for OpenJDK
+and has justly released the the first experimental version in OpenJDK 11.
+
+\citep{detlefs2004garbage,flood2016shenandoah} evaluated the performance of G1 GC
+and Shenandoah GC respectively, including the pause time and mutatur barriers overhead.
+However, their evacuations uses different benchmarking program and are done within
+different hardward platform. In addition, the implementations between these collectors
+varies too much, even for parts that shares the common ideas, which makes it hard to
+compare the benchmarking results between G1 GC and Shenandoah GC.
 
 \subsection{Evaluation of region-based collectors}
 
-You may reference other papers. For example: 
-Generational garbage collection~\citep{LH:83,Moon:84,Ungar:84} is perhaps the
-single most important advance in garbage collection since the first collectors
-were developed in the early 1960s. (doi: "doi" should just be the doi part, not
-the full URL, and it will be made to link to dx.doi.org and resolve.
-shortname: gives an optional short name for a conference like PLDI '08.)
+\cite{gay1998memory} measured the performance of memory management on a region-based heap.
+They divided the heap up into regions and used a safe C dialect
+with a conservative reference-counting collector to manage the memory. Then they
+measured the performance of both allocation and collection over such region-based heap,
+on a collection of realistic benchmarks. They found that the region structure has
+advantages for memory allocation and collection, with a competitive performance
+compared to malloc/free in C programs and has low overhead when using a garbage collector.
+However, they only evaluated the reference counting collector, which is not a
+mark and copy collector that this thesis is trying to evacuate. Also, the
+language they were using is a safe C dialect, which is different to the Java language
+in many aspects.
 
+\cite{qian2002adaptive} implemented a region-based allocator as well as a simple copying
+collector on JikesRVM. Based on the evaluation results on SPECjvm98 benchmarks,
+they found that the overhead of allocating and releasing memory pages
+and the cost of related write barriers is quite low.
+However, they are not focus too much on evaulating the overhead on a wide range of
+additional memory management techniques built upon the region-based memory structure,
+such as concurrent marking or evacuation.
 
+\subsection{Evaluation of barrier overheads}
 
+\cite{yang2012barriers} evaluated a wide range of different read and write barriers
+on JikesRVM, using the DaCapo benchmarks and the SPECjvm98 benchmarks.
+Also they observed the barrier performance differences of in-order and out-of-order machines.
+They found that write barriers are generally has overheads of 5.4\% while write
+barriers has average overheads of 0.9\%. However, these barriers evaluations did not
+include the evacuation on the Brooks indirection barriers. In addition, this paper
+measured the behavior of card marking barriers but did not measure the overhead of
+remembered-set barriers which is used along side with the card marking barrier in
+the Garbage-first GC.
 
 \section{Summary}
 
-In this section we introduced the background and basic ideas of several garbage collectors and
+In this section I introduced the background and basic ideas of several garbage collectors and
 also performed a general discussion of the related work on analyzing region-based garbage collectors.
 
 Next chapter will briefly describe the implementation environment of the collectors implemented

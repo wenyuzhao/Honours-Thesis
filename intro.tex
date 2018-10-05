@@ -78,7 +78,7 @@ and sharing as much implementation as possible.
 
 \section{Approach}
 
-In order to make detailed and careful analysis on these collectors, we started
+In order to make detailed and careful analysis on these collectors, I started
 from implementing a simple stop-the-world and region-based GC, and made
 progressive refinements on it to implement a linear-scan evacuation GC,
 a concurrent-marking GC, the Garbage-First GC and Shenandoah GC.
@@ -88,8 +88,8 @@ heap structure, allocators and concurrent marking phase
 In order to compare these collectors at an algorithmic level, the implementations
 are as close as possible to the design of their original papers.
 
-We evaluated the footprint overhead for the remembered-sets of the Garbage-First
-GC. We also evaluated the Brooks barriers overhead for Shenandoah GC, the latency
+I evaluated the footprint overhead for the remembered-sets of the Garbage-First
+GC. I also evaluated the Brooks barriers overhead for Shenandoah GC, the latency
 time and the snapshot-at-the-beginning (SATB) barrier time for all collectors
 on the DaCapo benchmark suite.
 
@@ -104,30 +104,31 @@ algorithms, such as concurrent marking, remembered-sets and Brooks barriers.
 
 Detailed and careful analysis on barrier latency and GC pause time was made to
 assist with comparisons among these collectors.
-We found that concurrent marking reduces the average GC pause time by \pending{???}\%
+I found that concurrent marking reduces the average GC pause time by \pending{???}\%
 where linear scanning evacuation can increase the average GC pause time by \pending{???}\%.
 However, the use of card scanning can reduces the GC pause time up to \pending{???}\%.
-As the result of barrier latency analysis, we found that SATB barriers can
+As the result of barrier latency analysis, I found that SATB barriers can
 increase the mutator overhead by \pending{???}\% where Brooks barriers
 increase the mutator overhead of Shenandoah by \pending{???}\%.
 
 \section{Thesis Outline}
 
-Chapter~\ref{cha:background} provides an general background and an overview of the Garbage-First family of garbage collectors.
-Similarities and differences among current collectors in OpenJDK are discussed,
-especially those region-based collectors.
-\\\\
-Chapter~\ref{cha:platform} roughly describes the platform details where the all Garbage-First
-family of garbage collectors were implemented and evaluated.
+Chapter~\ref{cha:background}
+provides an general background and an overview of the Garbage-First family of garbage collectors.
+Similarities and differences among some major categories of garbage collectors are discussed as well.
+Also the related work on implementing and measuring region-based collector and G1 family
+of collectors are discussed.
 \\\\
 Chapter~\ref{cha:implementation} provides the detailed steps and algorithms of the implementation of
 all the Garbage-First family of garbage collectors.
 \\\\
-Chapter~\ref{cha:methodology} 5 describes the methodology of testing and evaluating the implemented collectors.
-Including the benchmark used and the detailed steps of the evaluation.
-\\\\
-Chapter 6 presents the results of the evaluation and benchmarking on the implemented collectors,
-as well as results from some other collectors in MMTk as a comparison.
-\\\\
-Chapter 7 performs detailed and critical discussion on the evaluation results of the
+Chapter~\ref{cha:evaluation}
+describes the methodology used for evaluating the implemented collectors,
+including the benchmark involved and the detailed steps of each evaluation.
+This chapter also presents the results of the evaluation and benchmarking on the implemented collectors,
+as well as detailed and critical discussion on the evaluation results of the
 implemented collectors. Some recommendations for algorithm improvements are also provided.
+\\\\
+Chapter~\ref{cha:future} discusses the work related to this project that I plan to do in the future.
+\\\\
+Chapter~\ref{cha:conc} is the conclusion of this thesis.

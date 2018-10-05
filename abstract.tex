@@ -4,22 +4,36 @@
 
 The Garbage-First family of garbage collectors, including Garbage-first GC,
 Shenandoah GC and ZGC, are region-based concurrent collectors designed for
-large heaps to archive lower latency and mutator overhead. However, analysis,
-measurements and comparisons between their OpenJDK implementations can be
+large heaps to archive lower latency and mutator overhead.
+Particularly, Garbage-first GC is widely used in modern industry.
+However, analysis, measurements and comparisons between their OpenJDK implementations can be
 hard since the implementations do not share too much code and have different
-level of optimizations. This article attempts to perform a detailed and
-careful analysis of these collectors at an algorithmic level by implementing
-them upon the same hierarchy on JikesRVM. We evaluate the footprint overheads,
-mutator latency and barrier overheads for these collectors. Our results show
-that by using remembered-sets, G1 has \pending{???}\% average footprint overhead
+level of optimizations.
+
+This thesis attempts to perform a detailed and
+careful analysis of the performance of these collectors at an algorithmic level
+by implementing them JikesRVM and share as much design as possible.
+
+In this thesis, I will discuss implementation details of starting from a simple region-based
+collector and performs progressive refinements to further build the Garbage-first GC
+and the Shenandoah GC. At each progressive refinement step I will discuss the detailed
+design of the refinement, the barriers or data structures involved and the pros and cons
+of involving such refinement.
+
+As the part of performance evaluation, I evaluated the footprint overhead,
+the mutator latency and the mutator barrier overheads for these collectors.
+My results show that by using remembered-sets, G1 has \pending{???}\% average footprint overhead
 and G1, Shenandoah has barrier overheads of \pending{???}\% and \pending{???}\%
-respectively on the DaCapo benchmark suite. We also find that by using Brooks
+respectively on the DaCapo benchmark suite. I also find that by using Brooks
 style indirection pointers, Shenandoah and ZGC has average barrier overheads
 of \pending{???}\% and \pending{???}\%. The costs and overheads revealed in these
 garbage collectors can help garbage collection algorithm designers to identify
 the main advantages and drawbacks of region-based concurrent collectors and
-hence have the ability to make further refinements and optimizations to them. In
-additon, the relationships this paper discussed in the 
+hence have the ability to make further refinements and optimizations to them.
+
+In additon, the refinement steps discussed in this thesis reveal the relationship
+among the Garbage-First family of garbage collectors, which can help garbage collection algorithm designers
+to reconsider the design of garbage collectors and memory structures to make further algorithmic improvements.
 
 %%% Local Variables: 
 %%% mode: latex

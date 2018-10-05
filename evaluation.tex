@@ -1,17 +1,40 @@
 \chapter{Performance Evaluation}
 \label{cha:evaluation}
 
-This chapter discusses the performance evaluation we undertaken for analyzing
+This chapter discusses the performance evaluation I undertaken for analyzing
 the Garbage-First family of garbage collectors.
-This chapter will firstly discusses the software and hardware platform we used for benchmarking,
+This chapter will firstly describe the software and hardware platform I used for benchmarking,
 Then the detailed evaluation process and resutls of both pause time and
 barrier latency will be presented and discussed.
 
 
 \section{The Dacapo Benchmark} % 2
 
-We performed all the following pause time evacuations and barrier latency evaluation
-by using the Dacapo Benchmark. The benchmarking suites we 
+The Dacapo Benchmark Suite is a tool for Java benchmarking and contains a set of
+open-sourced real world programs with a high memory loads.
+
+The Dacapo Benchmark is frequently used during the development of the G1 family
+of garbage collectors in chapter~\ref{cha:implementation}, as a validation program
+to verify the correctness of the collectors under a real world setting.
+
+I also performed pause time evacuations and barrier latency evaluation
+on all of the following Dacapo Benchmark suites.
+The benchmarking suites I used for evaluation includes (\cite{Blackburn:2006:DBJ:1167515.1167488}):
+
+\begin{itemize}
+  \item \textbf{luindex} Uses lucene to indexes a set of documents; the works of Shakespeare and the King James Bible
+  \item \textbf{bloat} Performs a number of optimizations and analysis on Java bytecode files
+  \item \textbf{hsqldb} Executes a JDBCbench-like in-memory benchmark, executing a number of transactions against a model of a banking application
+  \item \textbf{lusearch} Uses lucene to do a text search of keywords over a corpus of data comprising the works of Shakespeare and the King James Bible
+  \item \textbf{pmd} Analyzes a set of Java classes for a range of source code problems
+  \item \textbf{xalan} Transforms XML documents into HTML
+  \item \textbf{avrora} Simulates a number of programs run on a grid of AVR microcontrollers
+  \item \textbf{sunflow} Renders a set of images using ray tracing
+\end{itemize}
+
+By performing evaluation on a wide range of benchmarking suites which represents different
+class of real world programs, it is more possible to understand the pros and cons
+of the G1 family of collectors under a real world setting.
 
 \section{Hardware Platform} % 2
 
@@ -21,11 +44,11 @@ the size of cache and memory were involved, as shown in Table~\ref{tab:machines}
 By executing all the benchmarking suite of the Dacapo Benchmark on these different machines,
 and thanks to the benchmarking suites of the Dacapo Benchmark which reflect
 that different categories of programs in the real world,
-we has the ability to statistically verify the correctness of the prevously
+we have the ability to statistically verify the correctness of the prevously
 implemented garbage collectors (in chapter~\label{cha:implementation})
 and make sure they performs as intended in a real world setting.
 
-For further performance evaluation, we chose the "fisher" machine for benchmarking.
+For further performance evaluation, the "fisher" machine was used for the final benchmarking.
 
 \begin{table*}
   \centering
@@ -36,15 +59,79 @@ For further performance evaluation, we chose the "fisher" machine for benchmarki
 
 \section{Pause Time Evaluation} % 7
 \label{sec:pausetimeevaluation}
-\subsection{MMTk harness callbacks}
+
+This section describes the steps took for pause time evaluation as well as
+all the evaluation results and discussions.
+
 \subsection{Mutator latency timer}
+
+In order to perform more careful analysis on the mutator pause times, instead of
+simply calculating the time starting from the first stop-the-world phase to the last
+stop-the-world phase during each GC cycle, I implemented a mutator latency timer
+to perform more precise calculation of mutator pause times.
+
+The mutator latency timer contains a static "three dimemsional" array:\\
+\centerline{\textjava{static long[] LOGS = long[THREAD ID * EVENT ID * TIMESTAMPS]}}
+This array is statically allocated within the VM Space to record the timestamp (in nanoseconds)
+of each event, for each mutator. The first dimension is the thread id of all
+mutators. The second dimension is the event id. The third dimemsion \textjava{TIMESTAMPS} is the
+max number of logs of one event and is currently set to $1024$. Particularly under
+current context, to measure the pause time for each mutator, two events,
+\textjava{MUTATOR_PAUSE} and \textjava{MUTATOR_RESUME} are defined to record the time when a
+mutator thread starts waiting for gc complete and the time when a mutator gets resumed for execution.
+
+In JikesRVM, a mutator thread checks for GC requests and starts waiting if necessary every
+time it reaches a yieldpoint, which may trigger a \textjava{MUTATOR_PAUSE} event if it should
+be paused. After a stop-the-world cycle is finished, before continuing for further execution,
+it triggers a \textjava{MUTATOR_RESUME} event.
+
+At the end of the benchmark execution, the mutator latency timer will dump all the
+data in the \textjava{LOGS} array to the print buffer for further data analysis.
+
+As an output of the analysis of the overhead data, I report the minimun, 25\%, 50\%,
+75\% and maximum mutator pause time for each GC, each benchmark suite and each heap size.
+
+\subsection{MMTk harness callbacks}
+
+During each iteration of benchmarking, the Dacapo benchmark has several warm-up
+executions which will run the benchmark suite a few times to warm up the cache and JVM.
+Then dacapo will starts the actual benchmarking run. I use a probe called \textjava{MMTKCallback}
+which will call the \textjava{org.mmtk.plan.Plan.harnessBegin} method
+before the final benchmarking execution and call the \textjava{org.mmtk.plan.Plan.harnessEnd}
+after the final benchmarking execution. Based on this, the two callbacks
+\textjava{harnessBegin} and \textjava{harnessEnd} are used to calculate the inform the mutator
+latency timer to start recording logs or dump all logs.
+
 \subsection{Results}
 \subsection{Discussion}
 
 
 \section{Barrier Latency Evaluation} % 7
 \label{sec:barrierlatencyevaluation}
+
+This section describes the steps took for barrier overhead evaluation as well as
+all the evaluation results and discussions.
+
 \subsection{Methodology}
+
+The mutator barrier percentage overhead is modelled as follows:
+$$
+\text{Overhead} = \frac{|\text{Mutator time with barrier} - \text{Mutator time without barrier}|}{\text{Mutator time without barrier}} * 100\%
+$$
+
+The mutator execution time is calculated as the execution time of the benchmarking program with
+stop-the-world gc time excluded.
+
+As discussed in chapter~\ref{cha:implementation}, I implemented the Garbage-first
+family of collectors by performing progressive refinements on a simple region-based collector.
+In this way, after each refinement on a collector, we can measure the overhead of
+the newly involved barriers or other technologies by comparing the benchmarking results
+of the old collector and the new collector.
+
+As an output of the analysis of the overhead data, the average barrier overhead
+for each GC, each benchmark suite, each heap size and each barrier this project used is reported.
+The overall average overhead for each barrier is also reported.
+
 \subsection{Snapshot-at-the-begining barriers}
 \subsection{Remembered set barriers}
 \subsection{Brooks indirection pointer barriers}

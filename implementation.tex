@@ -8,10 +8,10 @@ of these collectors are at a different optimization level and do not share too
 much code even they have similar marking barriers, heap structures and allocation policies.
 
 In order to erase the implementation differences between these collectors and perform
-a careful and pure algorithmic level comparison and analysis among them, we implemented
-several  Garbage-First family of garbage collectors on JikesRVM, by using the Memory Management Toolkit (MMTk).
+a careful and pure algorithmic level comparison and analysis among them, I implemented
+several Garbage-First family of garbage collectors on JikesRVM, by using the Memory Management Toolkit (MMTk).
 
-In this chapter, we discuss the motivation of performing the implementations,
+In this chapter, I will discuss the motivation of performing the implementations,
 the general design of the GC implementations,
 the implementation details for all the garbage collectors,
 each step of the progressive refinements as well as the relationships between these collectors.
@@ -34,27 +34,27 @@ Section~\ref{sec:shenandoahgc} describes the details of implementing the Shenand
 \section{General Design}
 \label{sec:generaldesign}
 
-We started from implementing a simple region-based GC which divides the whole java heap
+I started from implementing a simple region-based GC which divides the whole java heap
 up into fix sized regions and performs fully stop-the-world but parallel object marking
 and full-heap tracing based heap compaction/evacuation during each GC.
-We made progressive refinements based on this collector to further implement some G1 family of garbage collectors.
+Then I made progressive refinements based on this collector to further implement some G1 family of garbage collectors.
 
 Since both Garbage-First and Shenandoah GC use heap linear scanning for evacuation,
-we implemented a linear-scan region-based GC by divided the heap evacuation phase
+I implemented a linear-scan region-based GC by divided the heap evacuation phase
 of the simple region-based GC into two phases: The linear scan evacuation phase
 and the reference updating phase.
 
-Then we changed the stop-the-world marking phase of the linear-scan region-based GC
+Then I changed the stop-the-world marking phase of the linear-scan region-based GC
 to the concurrent marking phase to implement a concurrent-marking region-based GC, 
 by using the Snapshot at the Beginning algorithm (\cite{yuasa1990real}).
 
 By implementing the remembered-sets and remembered-set based evacuation based on
-the previous concurrent-marking region-based GC, we implemented the Garbage-First collector.
+the previous concurrent-marking region-based GC, I implemented the Garbage-First collector.
 
 Also starting from the concurrent-marking region-based GC, by implementing the Brooks indirection pointers
-and the corresponding mutator barriors, we implemented the Shenandoah GC.
+and the corresponding mutator barriors, I implemented the Shenandoah GC.
 
-By performing such progressive refinements, we successfully implemented a series of
+By performing such progressive refinements, I successfully implemented a series of
 G1 family of garbage collectors and share as much code and design as possible
 among the implementations of these collectors. Which enables the possibility for future
 algorithmic-level analysis on these garbage collectors.
@@ -65,7 +65,7 @@ algorithmic-level analysis on these garbage collectors.
 This simple region-based GC is provided as a baseline for future refinements. It contains
 most basic structures of the Garbage-First family of garbage collectors such as
 region-based heap space and bump pointer allocation algorithm. By making progressive refinements
-on this region-based GC, we keep the implementation differences between the
+on this region-based GC, I keep the implementation differences between the
 Garbage-First family of garbage collectors to a minimum.
 
 \subsection{Heap structure and allocation policy}
@@ -127,14 +127,14 @@ The marking process is done when the global object queue is drained, which means
 from the root objects are marked after the marking phase.
 
 In stead of using the gc byte in the object header for marking which is widely used in other GCs in MMTk,
-we maintain a bitmap for each region to record the liveness data for each object within this region.
+a bitmap for each region is maintained to record the liveness data for each object within this region.
 At the start of the marking phase, bitmaps of all regions are initialized to zero.
 As shown in figure~\ref{fig:tracemarkobject}, during visiting each object, the collector attempts to set the mark bit
 of the current object in the bitmap, and push the object into the object queue only if the attempt is succeed.
 
 Although using such extra "live table" is not necessary for this region-based GC,
 this is a common design for Garbage-First and Shenandoah GC.
-So we disable the gc byte in the object header at the very beginning to reduce the implementation difference among all collectors.
+So the gc byte in the object header was disabled at the very beginning to reduce the implementation difference among all collectors.
 
 \begin{figure}
   \centering
@@ -191,7 +191,7 @@ The collector frees all the regions in the collection set and resumes the execut
 
 Since the region-based evacuation is a fundamental component of G1 family of garbage collectors
 and can have several variants, it is necessary to verify the correctness of the evacuation process.
-We used an additional full heap tracing for verification. The full heap tracing is
+I used an additional full heap tracing for verification. The full heap tracing is
 similar to the marking trace and is fully stop the world to ensure the object graph is never changed
 during the verification process.
 When visiting each object node during verification, the collector checks all its object reference fields
@@ -207,11 +207,11 @@ not broken and is in the correct status.
 \label{sec:linearscangc}
 
 Since both Garbage-First and Shenandoah GC use heap linear scanning for evacuation,
-we implemented a linear-scan evacuation version of the simple region-based GC.
+I implemented a linear-scan evacuation version of the simple region-based GC.
 
 In the simple region-based GC, both object evacuation and reference updating are
 done together during the stop-the-world evacuation phase, using a single full heap tracing.
-For this linear-scan region-based GC, we divided the stop-the-world evacuation phase into
+For this linear-scan region-based GC, I divided the stop-the-world evacuation phase into
 two phases: The linear scan evacuation phase and the reference updating phase.
 
 During the linear scan evacuation phase, the collector threads linear scans all the regions
@@ -231,11 +231,11 @@ phases, e.g. concurrent marking, remembered-set based evacuation or concurrent e
 \section{Concurrent Marking}
 \label{sec:concmarkgc}
 
-Another refinement we did is to make the marking phase executes mostly in concurrent to reduce the
+Another refinement I did is to make the marking phase executes mostly in concurrent to reduce the
 mutator latency caused by the stop-the-world object marking.
 This concurrent-marking region-based GC is a refinement based on the previous linear-scan region-based GC.
 
-We use a Snapshot at the Beginning (SATB) algorithm \cite{yuasa1990real} to
+The Snapshot at the Beginning (SATB) algorithm \cite{yuasa1990real} is introduced to
 complete most of the marking work concurrently without pausing mutators. The SATB algorithm assumes an object is live if it was reachable (from the roots)
 at the start of the concurrent marking or if it was created during the concurrent marking \cite{yuasa1990real}.
 
@@ -388,8 +388,8 @@ offset of the last object for each card.
 \subsubsection{Hot cards optimization}
 
 During concurrent remset refinements, some cards may be enqueued and scanned multiple times
-which brings extra computation costs. To avoid such redundant scanning, we assign
-a hotness value for each card. Every scan on a card increases its hotness value by 1.
+which brings extra computation costs. To avoid such redundant scanning,
+a hotness value are assigned for each card. Every scan on a card increases its hotness value by 1.
 When the hotness for a card exceeds a hotness threshold (default is 4), this card is considered
 as a "hot card". Hot cards are pushed into a hot cards queue and the processing
 of all the hot cards card are delayed until the start of the evacuation phase.
@@ -461,7 +461,7 @@ The original design of G1 GC comes with a generational mode which collects newly
 The generational collection is based on an assumption that the newly allocated objects
 has higher chances to become garbage than those objects that is survived after several GCs.
 
-Based on this assumption on the age of objects, we divided the regions into three generations: Eden, Survivor and Old generation,
+Based on this assumption on the age of objects, the Generational G1 collector divides the regions into three generations: Eden, Survivor and Old generation,
 as shown in figure~\ref{fig:generationalg1}.
 Eden regions contain objects that is newly allocated since last GC.
 Survivor regions contain objects that is survived from last GC.
@@ -607,7 +607,7 @@ pointers.
 JikesRVM has its own implementation of object forwarding functions, but it stores the forwarding
 pointer into the status word in the object header. But by using the Brooks-style indirection
 pointer, all objects should have a valid indirection pointer in the header, which will override other status
-information, e.g. lock and dynamic hash status. So we use our own implementation of
+information, e.g. lock and dynamic hash status. So I use a new implementation of
 object forwarding functions which increases the java header by one word and stores the indirection
 pointer in this extra word.
 
@@ -616,7 +616,7 @@ pointer in this extra word.
 Monitor objects is an exception that is handled specially in the JikesRVM implementation of the Shenandoah GC.
 In JikesRVM, the jvm \textjava{monitorenter} and \textjava{monitorexit} instruction
 does not triggers read barriers when locking objects, which can cause inconsistencies 
-of the lock status of the object. We modified the JikesRVM's monitor lock and unlock
+of the lock status of the object. I modified the JikesRVM's monitor lock and unlock
 code to make them trigger the read barriers.
 
 \subsection{Concurrent updating references}
@@ -628,7 +628,8 @@ for each objects and make them points the correct object.
 
 Since the java program is running during the concurrent reference updating phase,
 unconditionally update object reference fields may cause racing problems. So instead of
-unconditionally updating pointers we used in the previous stop-the-world GCs, we performs
+unconditionally updating pointers which was used in the previous stop-the-world GCs,
+I modified the procedure to perform
 atomic pointer updating, as shown in figure~\ref{fig:concupdaterefs},
 to avoid racing problems.
 
@@ -643,7 +644,7 @@ to avoid racing problems.
 
 Since the mutator can either load a old or a new object reference of a same object
 from some object fields, simply comparing addresses of objects for the \textjava{if_acmpeq} and \textjava{if_acmpne}
-instruction can cause false negatives. We implemented a new object comparison barrier,
+instruction can cause false negatives. I implemented a new object comparison barrier,
 as shown in figure~\ref{fig:objectcomparisonbarrier}, to compare object references.
 In stead of simply comparing the addresses of the objects, the object comparison barrier also
 compares the indirection pointers of the objects.
@@ -672,7 +673,7 @@ by the collector in concurrent.
 
 Figure~\ref{fig:objectcasbarrier} shows the object compare and swap barrier used in Shenandoah GC.
 Instead of simply compare and swap on the old object, after the CAS on the old object failed,
-we also performs another CAS operation where the old value is the indirection pointer of the old object.
+another CAS operation is performed where the old value is the indirection pointer of the old object.
 
 \begin{figure}
   \centering
