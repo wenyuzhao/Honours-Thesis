@@ -1,0 +1,25 @@
+% Every table you want to use the bold macros in must start with the B specifier.
+% The C specifier makes the corresponding column bold. (so starting with "BCr"
+% makes the first column bold and right-aligned)
+% You must insert ^ between each column specifier.
+% Then, the \rowstyle{\bfseries} turns that row bold.
+
+\begin{tabular}{BCr^r^r}
+\toprule
+\rowstyle{\bfseries}
+Overheads (ns) & Average & 95\% Confidence Interval \\
+\midrule 
+637M           & 85.7  & $\pm$ 2.0 \\
+939M           & 94.4  & $\pm$ 2.0 \\
+1414M          & 100.9 & $\pm$ 2.0 \\
+1971M          & 115.0 & $\pm$ 2.0 \\
+Overall        & 115.0 & $\pm$ 2.0 \\
+\bottomrule
+\end{tabular}
+
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: t
+%%% End: 

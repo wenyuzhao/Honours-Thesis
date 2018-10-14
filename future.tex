@@ -15,11 +15,17 @@ expectedly during the concurrent phase of the Shenandoah GC, when there can be
 two different copies of an object exist in the heap.
 
 Duo to the time scope of thie thesis, I cannot solve this issue currently.
-But I have implemented a work-around in the Shenandoah GC, with lower performance.
+But currently a work-around is implemented in the Shenandoah GC, with a lower mutator performance.
+This explains the bad performance of mutator overhead we evaluated in chapter~\ref{cha:evaluation}.
 As the most urgent problem I are facing, I plan to solve this issue immediately after
 this project.
 
 \section{Optimizations}
+
+As part of the mutator latency results discussed in chapter~\ref{cha:evaluation},
+the generational G1 currently does not reveal any peprformance gain compared to
+the non-generational G1. It is expected to have more optimizations and parameter
+tuning to the generational G1 to further increase its performance.
 
 I am also considering the possibility to make the implemented Garbage-first
 and Shenandoah GC become production ready. One major part missing is the Optimizations

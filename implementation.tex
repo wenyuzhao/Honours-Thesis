@@ -183,7 +183,7 @@ The collector frees all the regions in the collection set and resumes the execut
 \begin{figure}
   \centering
   \lstinputlisting[linewidth=\textwidth,breaklines=true]{code/traceevacuateobject.java}
-  \caption{Code for mark each object}
+  \caption{Code for evacuate each object}
   \label{fig:traceevacuateobject}
 \end{figure}
 
@@ -691,9 +691,15 @@ and release these regions. This phase runs in concurrent without pausing mutator
 
 
 \section{Summary}
-\todo{Summary what you discussed in this chapter, and mention the story in next
-chapter. Readers should roughly understand what your thesis takes about by only reading
-words at the beginning and the end (Summary) of each chapter.}
+
+This chapter discusses the G1 family of garbage collectors I implemented,
+each step of refinement I performed to build these collectors and the detail GC algorithm involved.
+In addition, the reason as well as pros \& cons for each refinement are discussed.
+
+However, the pros and cons of several algorithms discussed in this chapter are
+all discussed based on theorical reasoning. Next chapter will perform several performance
+measurements of these collectors, on a set of banchmark suite that represents the
+real-world Java program.
 
 %%% Local Variables: 
 %%% mode: latex

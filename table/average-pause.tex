@@ -1,0 +1,97 @@
+% Every table you want to use the bold macros in must start with the B specifier.
+% The C specifier makes the corresponding column bold. (so starting with "BCr"
+% makes the first column bold and right-aligned)
+% You must insert ^ between each column specifier.
+% Then, the \rowstyle{\bfseries} turns that row bold.
+
+% \begin{tabular}{BCr^r^r^r^r^r^r^r}
+% \toprule
+% \rowstyle{\bfseries}
+% GC       & \gcvariant{Regional}{}    & \gcvariant{Regional}{Linear-scan evacuation} & \gcvariant{Regional}{Concurrent\ marking} \\
+% \midrule 
+% 637M     & \cival{85.7}{2.3}  & \cival{110.1}{2.0} & \cival{11.4}{0.4} \\
+% 939M     & \cival{94.4}{2.8}  & \cival{117.7}{2.7} & \cival{18.7}{0.6} \\
+% 1414M    & \cival{100.9}{4.4} & \cival{131.5}{4.1} & \cival{21.2}{0.9} \\
+% 1971M    & \cival{115.0}{5.0} & \cival{150.8}{5.1} & \cival{24.0}{1.2} \\
+% \bottomrule
+% \end{tabular}
+
+% \begin{tabular}{BCr^r^r^r^r^r^r^r}
+%   \toprule
+%   \rowstyle{\bfseries}
+%   GC       & \gcvariant{Garbage-First}{Non-generational} & \gcvariant{Garbage-First}{Generational} & \gcvariant{Shenandoah}{}                  \\
+%   \midrule 
+%   637M     & \cival{9.5}{0.5}  & \cival{10.4}{0.3} & \cival{4.1}{0.3} \\
+%   939M     & \cival{11.5}{0.6} & \cival{18.5}{0.5} & \cival{3.6}{0.2} \\
+%   1414M    & \cival{13.4}{0.6} & \cival{27.8}{0.6} & \cival{5.3}{0.4} \\
+%   1971M    & \cival{15.5}{0.7} & \cival{29.2}{0.5} & \cival{5.6}{0.4} \\
+%   \bottomrule
+%   \end{tabular}
+
+
+\begin{tabular}{BCr^r^r^r^r^r^r^r}
+  \toprule
+  \rowstyle{\bfseries}
+  
+  % &&&\mbox{Heap Size = 637\,MB}&&&\\
+  & \multicolumn{5}{c}{\textbf{Heap Size = 637\,MB}} &\\ 
+  Pause time (ms)                               & Mean & Min & 25\% & Mid & 75\% & Max \\
+  \midrule
+  \gcvariant{Regional}{}                       & 85.74  & 37.92 & 61.95 & 73.26  & 96.50  & 416.36 \\
+  \gcvariant{Regional}{Linear-scan evacuation} & 110.06 & 55.28 & 85.16 & 101.05 & 122.40 & 424.84 \\
+  \gcvariant{Regional}{Concurrent\ marking}    & 11.36  & 0.04  & 0.54  & 1.51   & 5.66   & 279.70 \\
+  \gcvariant{Garbage-First}{Non-generational}  & 9.51   & 0.04  & 0.19  & 1.79   & 6.40   & 548.71 \\
+  \gcvariant{Garbage-First}{Generational}      & 10.36  & 0.04  & 0.76  & 3.92   & 10.30  & 364.37 \\
+  \gcvariant{Shenandoah}{}                     & 4.12   & 0.04  & 0.11  & 1.11   & 4.32   & 488.65 \\
+  \bottomrule
+\end{tabular}
+
+\begin{tabular}{BCr^r^r^r^r^r^r^r}
+  \toprule
+  \rowstyle{\bfseries}
+  & \multicolumn{5}{c}{\textbf{Heap Size = 939\,MB}} &\\ 
+  Pause time (ms)                               & Mean & Min & 25\% & Mid & 75\% & Max \\
+  \midrule
+  \gcvariant{Regional}{}                       & 94.40  & 39.07 & 70.87 & 82.65  & 103.62 & 401.14  \\
+  \gcvariant{Regional}{Linear-scan evacuation} & 117.74 & 53.42 & 94.97 & 107.33 & 129.18 & 545.52  \\
+  \gcvariant{Regional}{Concurrent\ marking}    & 18.74  & 0.04  & 0.60  & 4.50   & 10.02  & 345.44  \\
+  \gcvariant{Garbage-First}{Non-generational}  & 11.52  & 0.04  & 0.67  & 4.46   & 10.42  & 803.90  \\
+  \gcvariant{Garbage-First}{Generational}      & 18.45  & 0.04  & 1.03  & 13.63  & 27.40  & 1198.33 \\
+  \gcvariant{Shenandoah}{}                     & 3.57   & 0.04  & 0.12  & 1.02   & 4.56   & 385.64  \\
+  \bottomrule
+\end{tabular}
+
+\begin{tabular}{BCr^r^r^r^r^r^r^r}
+  \toprule
+  \rowstyle{\bfseries}
+  & \multicolumn{5}{c}{\textbf{Heap Size = 1414\,MB}} &\\ 
+  Pause time (ms)                               & Mean & Min & 25\% & Mid & 75\% & Max \\
+  \midrule
+  \gcvariant{Regional}{}                       & 100.92 & 38.83 & 76.12  & 88.16  & 109.37 & 449.50  \\
+  \gcvariant{Regional}{Linear-scan evacuation} & 131.52 & 51.83 & 105.11 & 121.82 & 147.83 & 463.21  \\
+  \gcvariant{Regional}{Concurrent\ marking}    & 21.18  & 0.04  & 0.41   & 4.43   & 13.77  & 281.24  \\
+  \gcvariant{Garbage-First}{Non-generational}  & 13.40  & 0.03  & 0.65   & 4.20   & 15.81  & 926.35  \\
+  \gcvariant{Garbage-First}{Generational}      & 27.82  & 0.04  & 18.45  & 25.98  & 32.84  & 820.84  \\
+  \gcvariant{Shenandoah}{}                     & 5.28   & 0.04  & 0.13   & 1.50   & 4.71  & 549.97   \\
+  \bottomrule
+\end{tabular}
+
+\begin{tabular}{BCr^r^r^r^r^r^r^r}
+  \toprule
+  \rowstyle{\bfseries}
+  & \multicolumn{5}{c}{\textbf{Heap Size = 1971\,MB}} &\\ 
+  Pause time (ms)                               & Mean & Min & 25\% & Mid & 75\% & Max \\
+  \midrule
+  \gcvariant{Regional}{}                       & 114.97 & 39.53 & 79.62  & 105.31 & 134.58 & 415.50  \\
+  \gcvariant{Regional}{Linear-scan evacuation} & 150.84 & 56.66 & 111.01 & 138.37 & 179.26 & 420.24  \\
+  \gcvariant{Regional}{Concurrent\ marking}    & 23.98  & 0.04  & 0.42   & 4.19   & 28.10  & 310.79  \\
+  \gcvariant{Garbage-First}{Non-generational}  & 15.52  & 0.04  & 0.54   & 4.38   & 20.21  & 2010.66 \\
+  \gcvariant{Garbage-First}{Generational}      & 29.20  & 0.04  & 20.68  & 25.52  & 31.44  & 487.91  \\
+  \gcvariant{Shenandoah}{}                     & 5.55   & 0.04  & 0.13   & 1.08   & 4.68   & 613.34  \\
+  \bottomrule
+\end{tabular}
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: t
+%%% End: 
