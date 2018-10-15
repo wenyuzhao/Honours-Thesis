@@ -98,7 +98,7 @@ handle cyclic references (\cite{lins1992cyclic}) where some object \textjava{A} 
 count is at least $1$ for both \textjava{A} and \textjava{B}, even if there is no
 objects referencing to them.
 
-\subsection{Mark \& Sweep GC}
+\subsection{Mark \& sweep GC}
 
 Mark and Sweep GC is a type of tracing GC which uses the object graph to assist with garbage collection.
 The algorithm considers all the objects that is the unreachable in the program as garbage (\cite{endo1997scalable}).
@@ -207,7 +207,8 @@ these barrier is much greater than other GCs.
 
 \subsection{ZGC}
 
-ZGC is very similar to the Shenandoah GC and is also currently under experimental status.
+ZGC is a new garbage collector introduced by \cite{liden_karlsson_2018} and
+is very similar to the Shenandoah GC and is also currently under experimental status.
 ZGC performs a refinement on the Shenandoah GC to largely reduces the barrier
 overhead.
 ZGC assigns a color for each pointer and stores this metadata into the
@@ -222,7 +223,7 @@ barriers.
 \section{Related Work}
 \label{sec:relatedwork}
 
-\subsection{Implementations and Evaluations of the G1 family of collectors}
+\subsection{Implementations and evaluations of the G1 family of collectors}
 
 The current working G1 family of garbage collectors implemented for modern Java Virtual Machines
 includes the Garbage-first GC, Shenandoah GC and ZGC.

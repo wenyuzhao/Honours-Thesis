@@ -16,7 +16,7 @@ $2.$ Perform some optimizations
 $3.$ Exploring ZGC.
 $4.$ Further G1 related GC research
 
-\subsection{Race Problem for Shenandoah GC}
+\subsection{Race problem for Shenandoah GC}
 
 Currently the implementation of Shenandoah GC has a data race problem.
 Based on the previous analysis, the mutator is not lock and release a monitor
@@ -49,15 +49,33 @@ Due to the time scope of this project, I did not implement and measure ZGC.
 In addition, since JikesRVM and MMTk only supports the 32bit address space but the pointer
 coloring process in ZGC requires the 64bit address space, this makes the implementation
 of ZGC more difficult.
-But as a latest member of the Garbage-first family of collectors, ZGC is
-worth for implementation and measurements.
+
+However, as the most latest member of the Garbage-first family of collectors, ZGC
+generally has better performance than G1 GC and Shenandoah GC. By performing most of the
+GC work in concurrent, the pause time of ZGC is not propotional to the heap size and
+are expected to be less than 10 millliseconds even targeting 100\,GB heaps (\cite{liden_karlsson_2018}).
+In this way ZGC is extremely worth for an exploration.
+
 However, a detailed plan of resolving several hardware incompactabilities should be done in the future,
 before starting the implementation of ZGC.
 
 \subsection{Future G1 related GC research}
 
-\pending{???}
+The Garbagr-first family of garbage collectors have been proved to be high performance,
+in terms of GC latency and mutator overheads. However, the measurement results is still
+not perfect, which means there are a lot more can be done to further improve the
+GC performance.
 
+One example can be adding a generational extension to the Shenandoah GC to collect
+young garbage as early as possible to reduce the frequency of falling to full GCs.
+This generational mode involves a remembered set to remember object pointers in mature
+space pointing to the nursery space. However, in addition to using the table-based remembered
+sets used in G1, the buffer-based remembered sets introduced by \cite{blackburn2008immix} can
+also be explored as a comparison to G1's remembered sets.
+
+There are still many details of G1 related garbage collection algorithms can be
+explored. By performing more refinements on the existing Garbagr-first family of collectors
+(e.g. the Shenandoah GC), the GC performance can be expected to have more improvements.
 
 \section{Summary}
 
