@@ -1,12 +1,20 @@
 \chapter{Performance Evaluation}
 \label{cha:evaluation}
 
-This chapter discusses the performance evaluation I undertaken for analyzing
-the Garbage-First family of garbage collectors.
-This chapter will firstly describe the software and hardware platform I used for benchmarking,
+Answering the question of the GC performance under a real-world setting,
+this chapter discusses the performance evaluation I undertaken for analyzing
+the Garbage-First family of garbage collectors. This chapter will firstly describe the software and hardware platform I used for benchmarking,
 Then the detailed evaluation process and resutls of both pause time and
 barrier latency will be presented and discussed.
 
+Section~\ref{sec:dacapo} and \ref{sec:hardware} roughly introduce the experimental
+platform and software involved for the performance measurements.
+Section~\ref{sec:generalmethod} discusses the generall evaluation method used to
+evaluate the performance of all the interested metrics.
+Section~\ref{sec:pausetime}, \ref{sec:barrierlatency} and \ref{sec:remsetsize} discusses the detailed
+measurement steps involved to evaluate the GC pause time, barrier overhead and remembered set size
+respectivelt, as well
+as figures of the results and the discussion based on the results.
 
 \section{The Dacapo Benchmark} % 2
 \label{sec:dacapo}
@@ -38,6 +46,7 @@ class of real world programs, it is more possible to understand the pros and con
 of the G1 family of collectors under a real world setting.
 
 \section{Hardware Platform} % 2
+\label{sec:hardware}
 
 During the implementation of all the G1 family of garbage collectors in chapter~\ref{cha:implementation},
 a list of machine with a large varities on CPU types, clock, number of processors and
@@ -46,19 +55,20 @@ By executing all the benchmarking suite of the Dacapo Benchmark on these differe
 and thanks to the benchmarking suites of the Dacapo Benchmark which reflect
 that different categories of programs in the real world,
 we have the ability to statistically verify the correctness of the prevously
-implemented garbage collectors (in chapter~\label{cha:implementation})
+implemented garbage collectors (in chapter~\ref{cha:implementation})
 and make sure they performs as intended in a real world setting.
 
 For further performance evaluation, the "fisher" machine was used for the final benchmarking.
 
 \begin{table*}
   \centering
-  \label{tab:machines}
   \input table/machines.tex
   \caption{Machines used for development and evaluation.}
+  \label{tab:machines}
 \end{table*}
 
 \section{General Measurement Methodology}
+\label{sec:generalmethod}
 
 I perform both GC pause time and barrier overhead measurements on the optimized build
 of the JikesRVM, with 6 different GC configurations for the 6 GCs to be measured respecively.
@@ -87,7 +97,7 @@ for 10 times, with 2 times of warmup execution before the timing iteration.
 JikesRVM performs warmup-replay compilation at the end of the first warmup iteration.
 
 \section{Pause Time Evaluation} % 7
-\label{sec:pausetimeevaluation}
+\label{sec:pausetime}
 
 This section describes the steps took for pause time evaluation as well as
 all the evaluation results and discussions.
@@ -205,10 +215,10 @@ of the regional collector. Based on the benchmarking results at least 75\% of
 the GC pauses do not exceeds 10 milliseconds. However, full GCs can still results
 in pauses of around 500 to 600 milliseconds, which is longer than the concurrent-marking
 regional collector due to the Brooks barrier involved during evacuation, which performance
-will be discussed in section~\ref{sec:barrierlatencyevaluation}
+will be discussed in section~\ref{sec:barrierlatency}
 
 \section{Barrier Latency Evaluation} % 7
-\label{sec:barrierlatencyevaluation}
+\label{sec:barrierlatency}
 
 This section describes the steps took for barrier overhead evaluation as well as
 all the evaluation results and discussions.
@@ -275,6 +285,13 @@ Table~\ref{tab:brooksbarrier} shows the overheads of the Brooks indirection poin
 as well as their 95\% confidence interval on different heap sizes.
 
 \pending{Discussion}
+
+\section{Remembered-Set Size} % 7
+\label{sec:remsetsize}
+
+\subsection{Evaluation metrices}
+\subsection{Results}
+\subsection{Discussion}
 
 \section{Summary} % 2
 \label{sec:summary}

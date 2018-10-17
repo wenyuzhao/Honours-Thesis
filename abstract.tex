@@ -2,21 +2,41 @@
 \addcontentsline{toc}{chapter}{Abstract}
 \vspace{-1em}
 
-The Garbage-First family of garbage collectors, including Garbage-first GC,
-Shenandoah GC and ZGC, are region-based concurrent collectors designed for
-large heaps to archive lower latency and mutator overhead.
-Particularly, Garbage-first GC is widely used in modern industry.
-However, analysis, measurements and comparisons between their OpenJDK implementations can be
-hard since the implementations do not share too much code and have different
-level of optimizations.
+Garbage-first GC,
+Shenandoah GC, C4 GC and ZGC are region-based concurrent collectors designed for
+large heaps to achieve lower latency and mutator throughput reduction.
+All of these collectors have been proved to have the ability to
+significantly improve the GC performance.
+Particularly, Garbage-first GC has been widely used in modern industry to reduce
+GC latency on large heaps.
 
-This thesis attempts to perform a detailed and
-careful analysis of the performance of these collectors at an algorithmic level
-by implementing them JikesRVM and share as much design as possible.
+These region-based collectors shares a lot of common designs and algorithms, such as
+the similar marking algorithm, memory structure and allocation algorithm.
+There exists a strong underlying relationship among these collectors and in this
+thesis I use the term "The Garbage-First Family of Garbage Collectors" to describe
+such category of collectors.
 
-In this thesis, I will discuss implementation details of starting from a simple region-based
-collector and performs progressive refinements to further build the Garbage-first GC
-and the Shenandoah GC. At each progressive refinement step I will discuss the detailed
+Unfortunately, analysis, measurements and comparisons between their OpenJDK implementations can be
+hard. Although the design and algorithms of these collectors are strongly related,
+their refinement relationships are not reflected in the
+original design and implementations of these collectors.
+The designers of these collectors tend to treat them as stand-alone collectors instead
+of a refinement to the existing collector.
+For this reason no one have ever succsessfully measured
+the GC performance contribution of some specific GC algorithm or refinement involved
+in the G1 family of collectors. Hence no one can properly understand the pros and cons
+of the design of these collectors, which can further leads to some potential performance
+issue due to inappropriate GC design.
+
+This thesis attempts to discover the underlying relationship among the G1 family of collectors,
+perform a detailed and careful analysis of their refinement relationships at an algorithmic level
+and hence explore the GC performance contribution of each refinement.
+
+In this thesis, I discuss the implementation details of a total of six G1 family
+of collectors, starting from a simple region-based
+collector to the Garbage-first GC and Shenandoah GC.
+Each collector are implemented as a refined version of the previous collector.
+At each progressive refinement step I discuss the detailed
 design of the refinement, the barriers or data structures involved and the pros and cons
 of involving such refinement.
 
@@ -26,14 +46,16 @@ My results show that by using remembered-sets, G1 has \pending{???}\% average fo
 and G1, Shenandoah has barrier overheads of \pending{???}\% and \pending{???}\%
 respectively on the DaCapo benchmark suite. I also find that by using Brooks
 style indirection pointers, Shenandoah and ZGC has average barrier overheads
-of \pending{???}\% and \pending{???}\%. The costs and overheads revealed in these
-garbage collectors can help garbage collection algorithm designers to identify
-the main advantages and drawbacks of region-based concurrent collectors and
-hence have the ability to make further refinements and optimizations to them.
+of \pending{???}\% and \pending{???}\%.
 
-In additon, the refinement steps discussed in this thesis reveal the relationship
-among the Garbage-First family of garbage collectors, which can help garbage collection algorithm designers
-to reconsider the design of garbage collectors and memory structures to make further algorithmic improvements.
+The explored algorithmic relationships among the G1 family of collectors can help
+GC designers or other programmers working with JVM to have a deeper understanding of
+the G1 family of collectors as well as their relationships and the pros and cons of their involved refinements.
+The measured GC performance contribution of each refinement of the GC algorithm
+can help garbage collection algorithm designers to reconsider the design of 
+the region-based garbage collectors and memory structures, identify
+the main advantages and drawbacks of each involved GC algorithm and
+hence have the ability to make further refinements and optimizations to them.
 
 %%% Local Variables: 
 %%% mode: latex

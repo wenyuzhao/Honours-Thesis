@@ -1,19 +1,18 @@
 \chapter{Background and Related Work}
 \label{cha:background}
 
+Garbage collection is a hot topic in terms of modern managed programming language
+implementations. Specifically, region-based collectors like Garbage-First GC and
+C4 GC are widely used in modern Java programming languages to archive high GC performance.
 This chapter describes the background and basic ideas of several garbage collectors,
-particularly those targeting the java virtual machine and are implemented in OpenJDK or JikesRVM,
+particularly those targeting the Java virtual machine and are implemented in OpenJDK or JikesRVM,
 as well as the differences among several garbage collection techniques.
-
-In addition, this chapter also performed a general discussion of the related work
+In addition, this chapter also performs a general discussion of the related work
 on analyzing region-based garbage collectors.
-\\\\
+
 Section~\ref{sec:gcalgorithms} roughly discusses and compares different class of GC algorithms.
-\\\\
 Section~\ref{sec:g1collectors} describes the general design of the Garbage-first family of garbage collectors.
-\\\\
 Section~\ref{sec:relatedwork} describes the related work on analyzing region-based garbage collectors.
-\\\\
 
 \section{JikesRVM and MMTk}
 
@@ -205,6 +204,16 @@ However, Shenandoah GC has to insert some mutator barriers into the Java program
 before every object reference read and write. So the mutator overhead caused by
 these barrier is much greater than other GCs.
 
+\subsection{C4 GC}
+
+C4 GC is a pauseless GC algorithm created by \cite{tene2011c4} and is the default
+collector of Azul's Zing JVM. C4 is a region-based generational collector which
+performs mostly concurrent marking and compaction during nursery and mature GCs.
+A mutator barrier called the Brooks indirection barrier is introduced to support
+concurrent heap compaction without pausing the mutators. According the \cite{tene2011c4},
+by perform most of the GC work in concurrent, C4 GC has the ability to reduce the
+mutator response time down to around 10\,ms when targeting 100\,GB heaps.
+
 \subsection{ZGC}
 
 ZGC is a new garbage collector introduced by \cite{liden_karlsson_2018} and
@@ -281,8 +290,14 @@ the Garbage-first GC.
 
 \section{Summary}
 
-In this section I introduced the background and basic ideas of several garbage collectors and
-also performed a general discussion of the related work on analyzing region-based garbage collectors.
+In this section I introduced the background and basic ideas of several garbage collectors,
+as well as the design of the widely used region-based garbage collectors.
+I also performed a general discussion of the related work on analyzing region-based garbage collectors.
 
-Next chapter will briefly describe the implementation environment of the collectors implemented
-in this thesis, including the high-level design of JikesRVM and MMTk.
+As discussed in this chapter, most garbage collectors generally have the similar design, especially for those
+region-based collectors which shares the common design of the heap structure and
+marking algorithm.
+This leads to an open question: In what extent does these region-based collectors
+relate to each other? To answer this question, in next chapter I will explore the
+differences and relationships among these collectors and implement them on JikesRVM
+as a series of progressive algorithmic refinements instead of build them individually.

@@ -13,7 +13,7 @@ Although this thesis has come to an end, the research on this topic is far to fi
 There are still much work to do after this research project. In general, it includes:
 $1.$ Resolve a data rece problem for Shenandoah GC.
 $2.$ Perform some optimizations
-$3.$ Exploring ZGC.
+$3.$ Exploring C4 GC and ZGC.
 $4.$ Further G1 related GC research
 
 \subsection{Race problem for Shenandoah GC}
@@ -43,21 +43,21 @@ of these collectors and did not have too much optimizations. After performing so
 optimizations on these collectors as well as some additional correctness verfication,
 the collector can have the possibility to become production ready.
 
-\subsection{ZGC}
+\subsection{C4 GC and ZGC}
 
-Due to the time scope of this project, I did not implement and measure ZGC.
+Due to the time scope of this project, I did not implement and measure C4 GC and ZGC.
 In addition, since JikesRVM and MMTk only supports the 32bit address space but the pointer
 coloring process in ZGC requires the 64bit address space, this makes the implementation
 of ZGC more difficult.
 
-However, as the most latest member of the Garbage-first family of collectors, ZGC
+However, as the most latest member of the Garbage-first family of collectors, C4/ZGC
 generally has better performance than G1 GC and Shenandoah GC. By performing most of the
-GC work in concurrent, the pause time of ZGC is not propotional to the heap size and
+GC work in concurrent, the pause time of C4/ZGC is not propotional to the heap size and
 are expected to be less than 10 millliseconds even targeting 100\,GB heaps (\cite{liden_karlsson_2018}).
-In this way ZGC is extremely worth for an exploration.
+In this way these two collectors are extremely worth for an exploration.
 
 However, a detailed plan of resolving several hardware incompactabilities should be done in the future,
-before starting the implementation of ZGC.
+before starting the implementation of these two collectors.
 
 \subsection{Future G1 related GC research}
 
