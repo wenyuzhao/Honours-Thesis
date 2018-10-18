@@ -3,9 +3,9 @@
 
 This thesis explores the Garbage-First family of garbage collectors, including
 the underlying relationship among them, the refinements each GC does and the performance
-of those refinements.
+contribution by each refinement.
 My thesis is that different Garbage-First family of collectors are strongly related
-and each collector is actually a refinement to other collectors.
+and each collector is actually a refinement to other existing collectors.
 These refinements increases the GC performance in some aspect but also cause several extra drawbacks.
 
 \section{Project Statement}
@@ -17,44 +17,41 @@ a hot topic today. This involves reducing the latency of collectors and
 performing heap compaction or evacuation to avoid heap fragmentation.
 
 % Current three collectors
-Currently there are four major concurrent region-based garbage collectors implemented in OpenJDK:
-Garbage-First GC by \cite{detlefs2004garbage}, Shenandoah GC by \cite{flood2016shenandoah}, C4 GC by \cite{tene2011c4}
-and ZGC by \cite{liden_karlsson_2018}.
-They have a lot of similarities.
-All of these GCs were designed to deduce latency of mutators on large heaps.
-All of them share the same heap structure which divides the heap up into regions,
-as well as the same memory allocation algorithm.
-During GC cycle, all of these GCs perform almost similar concurrent marking process and collection
-set selection process.
-However, Garbage-First GC tries to perform partial heap scanning to reduce GC pause time,
-where instead Shenandoah GC, C4 GC and ZGC attempts to perform concurrent evacuation by using different
-techniques.
-
-Due to such similar design and algorithm of these collectors, although the designer
-of these collectors tends to regard them as stand-alone collectors, in thesis I
-use the term "The Garbage-First Family of Garbage Collectors" to describe
-such category of garbage collectors to reflect the underlying relationship among them.
+Among all the existing low-latency garbage collectors, the category of region-based
+collectors is widely explored and used in modern industry.
+Region-based collectors are designed to reach high GC
+performance (especially GC pause times) by managing the heap as a set of memory regions.
+As four well-known region-based garbage collectors,
+Garbage-first GC, Shenandoah GC, C4 GC and ZGC created by
+\citep{detlefs2004garbage,flood2016shenandoah,tene2011c4,liden_karlsson_2018} respectively
+are high performance region-based garbage collectors implemented for Java virtual machines
+to reach short GC pause times and high program throughput.
 
 % Problem
-However, differences exist among these collectors.
-The techniques involved in these collectors reduce GC latencies are vary, which leads to different
-performance impact of these collectors. Although these algorithm have greatly
-improved the GC performance, sometimes their drawbacks can still be unignorable.
-As an example, according to \cite{briandemsky2015speculative}, sometimes GC time of region-based collectors
-can take up to 50\% of the total execution time of Big Data systems.
-In this way it is necessary to perform careful analysis of the pros and cons for the 
-Garbage-First family of garbage collectors, especially on an algorithmic level.
+The design and implementation of such region-based collectors has been well
+explored nowadays, but unfortunately their underlying relationship is still remains unidentified and unexplored.
+Although these collectors share a lot of basic algorithms and structures,
+the original papers or other publications of these collectors only regard them as
+newly created and stand-alone collectors instead of refined versions of existing collectors.
+Such ignorance of the potential relationships prevents GC designers to have a clear
+overview of the algorithms supporting these collectors.
 
-However, the potential relationship and the related GC performance impact of
-the G1 family of collectors has never been carefully explored and analyzed.
+Also, the lack of explorations on these relationships can make the GC performance evaluation
+and analysis among these collectors to be impossible.
 The existing G1 family of collectors, including
 G1 GC, Shenandoah GC, C4 GC and ZGC are invented by different groups or campanies (Sun, RadHat, Azul and Oracle respectively).
-Although these collectors shares a lot of basic algorithms and structures,
-the original papers or other publications of these collectors only regards them as
-newly created and stand-alone collectors.
-In this way even the designers themselves can hardly understand and measure the detailed performance
-contribution of each part of the involved GC algorithms, which can hence mislead the design
-of garbage collectors and cause several potential performance issues discussed previously.
+The implementations and optimizations on these collectors are vary.
+This makes the original implementations of the G1 family of collectors do not reflect
+their underlying structural relationships.
+The implementation differences among these collectors make them become impossible
+to be carefully measured for the GC performance impact of each structural component.
+This means no one have ever truely understand the GC performance contribution by each
+GC algorithm and refinement.
+On the one hand such lack of explorations on these relationships and the lack of
+performance analysis and comparisons may cause some unexpected performance issue to these collectors.
+As an example, according to \cite{briandemsky2015speculative}, sometimes GC time of region-based collectors
+can take up to 50\% of the total execution time of Big Data systems.
+On the other hand this can also mislead the future design of related collectors.
 
 So here come to the problem which this thesis is aiming to solve: What are the relationships
 among the G1 family of collectors and in which way will they contribute to the GC performance?

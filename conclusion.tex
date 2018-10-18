@@ -1,16 +1,21 @@
 \chapter{Conclusion}
 \label{cha:conc}
 
-This thesis is aiming to make a better exploration of the G1 family of garbage collectors
-by implementing and measure them carefully on JikesRVM.
-The explorations and discussion in the previous chapters has successfully demostrates
-the pros and cons of each algorithm and the cause of these phenomenons.
+This thesis is aiming to identify and explore the underlying relationship of the
+G1 family of garbage collectors as well as analyze the performance impact due to
+the explored refinement components.
+The explorations and discussion in the previous chapters have successfully demostrates
+that the relationship among the G1 family of collectors exists and can impact the GC
+performance in both positive and negative ways.
+Hence the pros and cons of each algorithm and the cause of these phenomenons
+are discussed based on the evaluation results.
 
 \section{Future Work}
 \label{sec:future}
 
 Although this thesis has come to an end, the research on this topic is far to finish.
-There are still much work to do after this research project. In general, it includes:
+There are still much work to do after this research project.
+In general, a few typical future works are:
 $1.$ Resolve a data rece problem for Shenandoah GC.
 $2.$ Perform some optimizations
 $3.$ Exploring C4 GC and ZGC.
@@ -79,19 +84,25 @@ explored. By performing more refinements on the existing Garbagr-first family of
 
 \section{Summary}
 
-This thesis is aiming to explore the detail of different G1 family of garbage collectors
-by implementing them as a series of refinements and measure them carefully.
+This thesis is aiming to identify and explore the underlying relationship of the
+G1 family of garbage collectors, implement them as a series of refinements to
+reflect such relationships and analyze the GC performance impact of different algorithm components.
 
-As discussed in previous chapters, most of my implementations result in a reasonable
+As discussed in previous chapters, the potential relationships among the G1 family of collectors
+are successfully discovered and discussed.
+Based on such relationships, this thesis produces the first implementation of the
+G1 family of collectors that reflect to the underlying algorithmic relationships.
+Most of my implementations result in a reasonable
 or even unexpectedly performance for either GC pause time and mutator overheads.
 Based on these implementations and measurement results, the pros and cons as well
-as their underlying reasons are explored and discussed. Hence, these explorations can
-further inspire GC designers to reconsider the region-based GC algorithms to make
-further improvements.
+as their underlying reasons are explored and discussed.
+Hence, the explorations performed in this thesis can inspire GC designers to
+reconsider the design and structure of region-based GC algorithms to make
+further valuable refinements and improvements.
 
-In conclusion, although the algorithms supporting the G1 family of garbage collectors
-increase the GC performance significantly, there is still a lot to improve and more research
-should be done in this area.
+In conclusion, the relationships among the G1 family of collectors exist and have
+impact to the GC performance in many ways, including negative performance impacts.
+Which mean there is still a lot to improve and more research should be done in this area.
 
 % Implelemtations I did
 

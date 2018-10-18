@@ -2,51 +2,76 @@
 \addcontentsline{toc}{chapter}{Abstract}
 \vspace{-1em}
 
-Garbage-first GC,
-Shenandoah GC, C4 GC and ZGC are region-based concurrent collectors designed for
-large heaps to achieve lower latency and mutator throughput reduction.
-All of these collectors have been proved to have the ability to
+% Problem
+
+The design and implementation of different region-based collectors has been well explored, from the
+most simple Mark-Region collector created by \cite{sergeant2014improving} to the
+more complex Garbage-first GC, Shenandoah GC, C4 GC and ZGC created by
+\citep{detlefs2004garbage,flood2016shenandoah,tene2011c4,liden_karlsson_2018} respectively.
+Most of these collectors have been proved to have the ability to
 significantly improve the GC performance.
 Particularly, Garbage-first GC has been widely used in modern industry to reduce
 GC latency on large heaps.
 
-These region-based collectors shares a lot of common designs and algorithms, such as
+These region-based collectors share a lot of common designs and algorithms, such as
 the similar marking algorithm, memory structure and allocation algorithm.
-There exists a strong underlying relationship among these collectors and in this
-thesis I use the term "The Garbage-First Family of Garbage Collectors" to describe
-such category of collectors.
+However, the existence of such underlying relationship among these collectors
+has never been well identified and explored.
+Instead, the designers of these region-based collectors tend to treat these as
+stand-alone collectors instead of a refinement to the existing collector.
+Such ignorance of the underlying relationships among the region-based collectors
+can mislead the future design and refinements on related collectors. 
 
-Unfortunately, analysis, measurements and comparisons among their OpenJDK implementations can be
-hard. Although the design and algorithms of these collectors are strongly related,
-their refinement relationships are not reflected in the
+Hence, analysis, measurements and comparisons among these collectors can also be hard.
+Although the design and algorithms of these collectors are similar,
+their structural relationships are not reflected to the
 original design and implementations of these collectors.
-The designers of these collectors tend to treat them as stand-alone collectors instead
-of a refinement to the existing collector.
 For this reason no one have ever succsessfully measured
-the GC performance contribution of some specific GC algorithm or refinement involved
-in the G1 family of collectors. Hence no one can properly understand the pros and cons
-of the design of these collectors, which can further leads to some potential performance
+the GC performance contribution of some specific GC algorithm or refinement component involved
+in these collectors.
+Which means no one can properly understand the pros and cons
+of the design of these collectors, and may further leads to some potential performance
 issue due to inappropriate GC design.
 
-This thesis attempts to discover the underlying relationship among the G1 family of collectors,
-perform a detailed and careful analysis of their refinement relationships at an algorithmic level
-and hence explore the GC performance contribution of each refinement.
+% Contribution
 
-In this thesis, I discuss the implementation details of a total of six G1 family
+As the fundamental novel contribution, this thesis is the first to prove the existence of a potential
+structural relationship among the region-based collectors and makes a deep exploration
+of the refinements relationships among a set of region-based collectors which have similar
+design to the Garbage-First GC. In thesis I use the term
+"The Garbage-First Family of Garbage Collectors" to describe such category of collectors.
+
+This thesis produces the first implementation to reflect the previously
+discovered refinements relationships.
+Sperifically, in this thesis, I discuss the implementation details of a total of six G1 family
 of collectors, starting from a simple region-based
 collector to the Garbage-first GC and Shenandoah GC.
-Each collector are implemented as a refined version of the previous collector.
-At each progressive refinement step I discuss the detailed
-design of the refinement, the barriers or data structures involved and the pros and cons
-of involving such refinement.
+Each collector are implemented as a refined version of the previous collector to reflected
+the corresponding refinement relationship.
 
-As the part of performance evaluation, I evaluated the footprint overhead,
-the mutator latency and the mutator barrier overheads for these collectors.
-My results show that by using remembered-sets, G1 has \pending{???}\% average footprint overhead
-and G1, Shenandoah has barrier overheads of \pending{???}\% and \pending{???}\%
-respectively on the DaCapo benchmark suite. I also find that by using Brooks
-style indirection pointers, Shenandoah and ZGC has average barrier overheads
-of \pending{???}\% and \pending{???}\%.
+Based on such implementation, this thesis performs a detailed
+and careful analysis of the GC performance contribution by each part of the refinement.
+This includes the measurement of the GC pause time, several mutator barrier overheads
+and the space overhead of remembered-sets.
+
+% Results
+
+The exploration of the Garbage-First Family of Garbage Collectors leads to a conclusion
+that there exist a refinement relationship among these G1 family of collectors.
+Instead of being stand-alone collector, they tend to be collectors with
+algorithmic refinements to some existing collectors.
+
+As the result of the GC performance evaluation,
+refinement components including concurrent-marking, remembered-sets and concurrent
+evacuation contributes to a improvement of \pending{???}\%, \pending{???}\% and \pending{???}\%
+respectively to the average GC pause time on the DaCapo benchmark suite.
+By using remembered-sets, G1 has \pending{???}\% average footprint overhead.
+Mutator barriers performance SATB barrier, remembered-set barrier,
+and Brooks barrier increases the mutator overheads by \pending{???}\%, \pending{???}\%
+and  \pending{???}\%
+respectively.
+
+% Meaning
 
 The explored algorithmic relationships among the G1 family of collectors can help
 GC designers or other programmers working with JVM to have a deeper understanding of

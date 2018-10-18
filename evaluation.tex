@@ -301,10 +301,10 @@ performance of the G1 family of garbage collectors. This includes the evaluation
 GC pause times and overhead of several mutator barriers. Also the phenomenon revealed
 in the measurement results is carefully discussed.
 
-In one hand, based on the measurement results, we can see that linear scan based evacuation
+On the one hand, based on the measurement results, we can see that linear scan based evacuation
 increses the work for each GC. Using concurrent marking, concurrent evacuation
 or remembered set based partial heap scanning can significantly reduces the pause time
-for each GC. In the other hand, using mutator barrier barriers can largely increase the
+for each GC. On the other hand, using mutator barrier barriers can largely increase the
 mutator throughput reduction.
 
 Also based on the measurement results, the generational G1 and Shenandoah GC shows some
