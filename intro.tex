@@ -2,11 +2,11 @@
 \label{cha:intro}
 
 This thesis explores the Garbage-First family of garbage collectors, including
-the underlying relationship among them, the refinements each GC does and the performance
-contribution by each refinement.
+the underlying relationship among them, the improvements each GC does and the performance
+contribution by each algorithmic component.
 My thesis is that different Garbage-First family of collectors are strongly related
-and each collector is actually a refinement to other existing collectors.
-These refinements increases the GC performance in some aspect but also cause several extra drawbacks.
+and each collector is actually an improvements to other existing collectors.
+These improvements increases the GC performance in some aspect but also cause several extra drawbacks.
 
 \section{Project Statement}
 
@@ -32,7 +32,7 @@ The design and implementation of such region-based collectors has been well
 explored nowadays, but unfortunately their underlying relationship is still remains unidentified and unexplored.
 Although these collectors share a lot of basic algorithms and structures,
 the original papers or other publications of these collectors only regard them as
-newly created and stand-alone collectors instead of refined versions of existing collectors.
+newly created and stand-alone collectors instead of improvements to the existing collectors.
 Such ignorance of the potential relationships prevents GC designers to have a clear
 overview of the algorithms supporting these collectors.
 
@@ -45,8 +45,8 @@ This makes the original implementations of the G1 family of collectors do not re
 their underlying structural relationships.
 The implementation differences among these collectors make them become impossible
 to be carefully measured for the GC performance impact of each structural component.
-This means no one have ever truely understand the GC performance contribution by each
-GC algorithm and refinement.
+This means no one have ever truely understand the GC performance contribution of each
+GC algorithm involved in these collectors.
 On the one hand such lack of explorations on these relationships and the lack of
 performance analysis and comparisons may cause some unexpected performance issue to these collectors.
 As an example, according to \cite{briandemsky2015speculative}, sometimes GC time of region-based collectors
@@ -90,18 +90,18 @@ among the G1 family of collectors and in which way will they contribute to the G
 
 I insist that the G1 family of collectors are strongly related to each other,
 although the original papers of these collectors present them as a stand-alone collector
-instead of a refined collector based on other existing GC algorithms. The lack of
-explorations to such refinements relationships makes it hard to carefully analyze
+instead of a improved collector based on other existing GC algorithms. The lack of
+explorations to such structural relationships makes it hard to carefully analyze
 the performance contribution caused by each part of the GC algorithm, hence prevents
 GC designers to truly understand the pros and cons of each GC algorithms.
 
 This thesis makes a deep exploration to the underlying relationship among the
 G1 family of garbage collectors. The algorithmic relationships are summarised
-as a series of progressive refinements, which generally reflects the evolution
+as a series of progressive improvements, which generally reflects the evolution
 history of the G1 family of collectors.
 
 As another major component of the exploration, I implement the collectors by following
-the steps of the progressive refinements, staring from a most simple form of the
+the steps of the progressive improvements, staring from a most simple form of the
 region-based collector to the most complex collector, e.g. Garbage-First GC and
 Shenandoah GC, to reveal the hierarchy of the G1 family of collectors.
 GC performance of these implemented collectors are also evaluated and discussed.
@@ -112,23 +112,23 @@ The general steps involved in thie thesis for exploring these collectors include
   \textbf{Discover the relationships}
     of the G1 family of garbage collectors includs understand the basic algorithms
     of these collectors, infer the underlying relationships among them and reconsider them as
-    a series of algorithm refinements instead of individual collectors.
+    a series of algorithm improvements instead of individual collectors.
 
   \textbf{Implement a simple mark-region collector}
     by starting from an existing SemiSpace GC in MMTk and replace the two copy-spaces
     with a region-space which divides the memory up into multiple regions.
     Then adding an extra marking phase before the evacuation phase.
 
-  \textbf{Perform a series of refinements}
+  \textbf{Perform a series of improvements}
     by starting from the simple mark-region collector and progressively perform
-    refinements including linear-scan evacuation, concurrent marking, remembered sets
-    and concurrent evacuation. This step produces a few refined version of the
+    improvements including linear-scan evacuation, concurrent marking, remembered sets
+    and concurrent evacuation. This step produces a few improved version of the
     mark-region collectors, the Garbage-First GC and the Shenandoah GC.
 
   \textbf{Measure the GC performance}
     includes measuring the GC pause times of all implemented collectors, the 
     barrier overheads and the remembered set size. This measurements reflect the
-    performance gain caused by the algorithm refinements.
+    performance gain caused by each algorithmic improvement.
 
   \textbf{Explain and explore the results}
     of the previously generated measurement results, which leads to a reconsideration

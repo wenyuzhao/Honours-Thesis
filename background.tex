@@ -218,7 +218,7 @@ mutator response time down to around 10\,ms when targeting 100\,GB heaps.
 
 ZGC is a new garbage collector introduced by \cite{liden_karlsson_2018} and
 is very similar to the Shenandoah GC and is also currently under experimental status.
-ZGC performs a refinement on the Shenandoah GC to largely reduces the barrier
+ZGC redesigns the mutator barriers of the Shenandoah GC to largely reduces the barrier
 overhead.
 ZGC assigns a color for each pointer and stores this metadata into the
 unused bits in the 64bit pointers.
@@ -300,4 +300,4 @@ marking algorithm.
 This leads to an open question: In what extent does these region-based collectors
 relate to each other? To answer this question, in next chapter I will explore the
 differences and relationships among these collectors and implement them on JikesRVM
-as a series of progressive algorithmic refinements instead of build them individually.
+as a series of progressive algorithmic improvements instead of build them individually.

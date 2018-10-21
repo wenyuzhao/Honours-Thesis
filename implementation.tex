@@ -11,13 +11,13 @@ As a major contribution of thie thesis, this chapter explores the underlying rel
 among these collectors which the original designers of these GCs was not aware of.
 Based on these discovered relationships, this chapter also discusses the implementations
 of several region-based GCs, as we called "The Garbage-First family of garbage collectors",
-as a series of refinements infered by the discovered relationships.
+as a series of improvements infered by the discovered relationships.
 
 Section~\ref{sec:generaldesign} describes the general and high-level design of the
 G1 family of garbage collectors and explores their underlying relationships.
 Section~\ref{sec:simpleregiongc} describes the implementation details of a simple region-based GC.
-Section~\ref{sec:linearscangc} describes the implementation of a refinement of the simple region-based GC that uses linear scanning during evacuation.
-Section~\ref{sec:concmarkgc} describes the implementation of a refinement that performs object marking concurrently.
+Section~\ref{sec:linearscangc} describes the implementation of the simple region-based GC that uses linear scanning during evacuation.
+Section~\ref{sec:concmarkgc} describes the implementation of the improvement to the region-based GC that performs object marking concurrently.
 Section~\ref{sec:g1gc} describes the details of implementing the Garbage-First GC
 Section~\ref{sec:shenandoahgc} describes the details of implementing the Shenandoah GC
 
@@ -78,7 +78,8 @@ In terms of different collectors,
   Although Shenandoah GC still uses performs heap tracing during compaction phase,
   the GC pause time is extremely low and is not proportional to the heap size.
 
-  ZGC can be regarded as a refinement to the Shenandoah GC. ZGC uses the "colored pointers"
+  ZGC can be simply regarded as a improvement to the Shenandoah GC with high mutator performance.
+  ZGC uses the "colored pointers"
   as well as a highly optimized read barrier to assist with the Brooks indirection barrier
   to further increase the mutator throughput.
 
@@ -89,21 +90,21 @@ In terms of different collectors,
 
 In general, these four collectors are strongly related to each other in terms of
 the design and algorithm structure. In addition, each collector performs their
-own refinements to improve GC performance. In this way, at the algorithmic level
-these collectors tends to be a set of refinements to the naïve region-based collector.
+own improvements to improve GC performance. In this way, at the algorithmic level
+these collectors tends to be a set of improvements to the naïve region-based collector.
 Hence they are more likely to form as a family of collectors
 instead of individual and unrelated collectors.
 
 \subsection{Implementation steps}
 
-As the first implementation which reflects such refinements hierarchy,
+As the first implementation which reflects such algorithmic hierarchy,
 members of the G1 family of garbage collectors are reorgainzed and reimplemented on JikesRVM
 by following different steps against the original implementation. 
 
 I started from implementing a simple region-based GC which divides the whole java heap
 up into fix sized regions and performs fully stop-the-world but parallel object marking
 and full-heap tracing based heap compaction/evacuation during each GC.
-Then I made progressive refinements based on this collector to further implement some G1 family of garbage collectors.
+Then I made progressive improvements based on this collector to further implement some G1 family of garbage collectors.
 
 Since both Garbage-First and Shenandoah GC use heap linear scanning for evacuation,
 I implemented a linear-scan region-based GC by divided the heap evacuation phase
@@ -120,7 +121,7 @@ the previous concurrent-marking region-based GC, I implemented the Garbage-First
 Also starting from the concurrent-marking region-based GC, by implementing the Brooks indirection pointers
 and the corresponding mutator barriors, I implemented the Shenandoah GC.
 
-By performing such progressive refinements, I successfully implemented a series of
+By performing such progressive improvements, I successfully implemented a series of
 G1 family of garbage collectors and share as much code and design as possible
 among the implementations of these collectors. Which enables the possibility for future
 algorithmic-level analysis on these garbage collectors.
@@ -128,9 +129,9 @@ algorithmic-level analysis on these garbage collectors.
 \section{Simple Region-based GC}
 \label{sec:simpleregiongc}
 
-This simple region-based GC is provided as a baseline for future refinements. It contains
-most basic structures of the Garbage-First family of garbage collectors such as
-region-based heap space and bump pointer allocation algorithm. By making progressive refinements
+This simple region-based GC is provided as a baseline for future implementation of the G1 family of collectors.
+It contains most basic structures of the Garbage-First family of garbage collectors such as
+region-based heap space and bump pointer allocation algorithm. By making progressive improvements
 on this region-based GC, I keep the implementation differences among the
 Garbage-First family of garbage collectors to a minimum.
 
@@ -291,15 +292,15 @@ pointers to ensure every pointer in the heap pointers to the correct copy of the
 By separating the linear scan evacuation phase and the reference updating phase,
 the linear-scan region-based GC shows the basic collection processes of most G1 family
 of garbage collectors: \textjava{marking -> evacuation -> update references -> cleanup}.
-The modular design of this collectors enables the future refinements on some specific
+The modular design of this collectors enables the future redesign and rewrite of some specific
 phases, e.g. concurrent marking, remembered-set based evacuation or concurrent evacuation.
 
 \section{Concurrent Marking}
 \label{sec:concmarkgc}
 
-Another refinement I did is to make the marking phase executes mostly in concurrent to reduce the
+Another improvement I did is to make the marking phase executes mostly in concurrent to reduce the
 mutator latency caused by the stop-the-world object marking.
-This concurrent-marking region-based GC is a refinement based on the previous linear-scan region-based GC.
+This concurrent-marking region-based GC is an improvement based on the previous linear-scan region-based GC.
 
 The Snapshot at the Beginning (SATB) algorithm \cite{yuasa1990real} is introduced to
 complete most of the marking work concurrently without pausing mutators. The SATB algorithm assumes an object is live if it was reachable (from the roots)
@@ -336,7 +337,7 @@ is used for concurrent marking. Then it starts the collection set selection phas
 simple region-based GC.
 \\\\
 
-This concurrent-marking region-based GC is an important refinement which enables
+This concurrent-marking region-based GC is an important improvement which enables
 the analysis of the pause time and mutator latency provided by the SATB concurrent marking algorithm on the region space.
 Although MMTk provides an implementation of SATB algorithm, but the old implementation
 is only performed on the mark-sweep space, not on the region space.
@@ -382,7 +383,8 @@ And the last phase is the cleanup phase which frees the regions in the collectio
 
 The construction of the Garbage-First GC on JikesRVM is based on the concurrent-marking
 region-based GC.
-It involves three refinements: remembered-set based pointer updating, pause time predictor and generational collection.
+It involves three improvements to the concurrent region-based collector discussed in \label{sec:concmarkgc}:
+remembered-set based pointer updating, pause time predictor and generational collection.
 The remembered-set based pointer updating largely reduces the pause time cause by
 the reference updating phase by avoiding full heap tracing when reference updating,
 using remembered sets. The pause time predictor uses a statistical prediction model to make the pause time of each
@@ -759,13 +761,13 @@ and release these regions. This phase runs in concurrent without pausing mutator
 \section{Summary}
 
 This chapter explores and discusses relationship of the G1 family of garbage collectors.
-Then each step of refinement I performed to build these collectors and the detail GC algorithm involved
+Then each step of improvement I performed to the collector and the involved GC algorithm
 is also explained and discussed, as well as a little bit further discussion of the
-pros \& cons for each refinement at an algorithmic level
+pros \& cons for each structural component at an algorithmic level
 
 However, the pros and cons of several algorithms discussed in this chapter are
 all discussed based on theorical reasoning.
-The real-world GC performance impact caused by these refinements still remains unexplored.
+The real-world GC performance impact caused by these improvements still remains unexplored.
 So to explore the real-world GC performance, in next chapter I will perform several performance
 measurements of these collectors, on a set of banchmark suite that represents the
 real-world Java program.

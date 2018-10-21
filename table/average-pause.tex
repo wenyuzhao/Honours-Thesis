@@ -29,65 +29,65 @@
 %   \end{tabular}
 
 
-\begin{tabular}{BCr^r^r^r^r^r^r^r}
+\begin{tabular}{BCr^r^r^r^r^r^r}
   \toprule
   \rowstyle{\bfseries}
   
   % &&&\mbox{Heap Size = 637\,MB}&&&\\
   & \multicolumn{5}{c}{\textbf{Heap Size = 637\,MB}} &\\ 
-  Pause time (ms)                               & Mean & Min & 25\% & Mid & 75\% & Max \\
+  Pause time (ms)                               & Mean & Min & Mid & 95\% & Max \\
   \midrule
-  \gcvariant{Regional}{}                       & 85.74  & 37.92 & 61.95 & 73.26  & 96.50  & 416.36 \\
-  \gcvariant{Regional}{Linear-scan evacuation} & 110.06 & 55.28 & 85.16 & 101.05 & 122.40 & 424.84 \\
-  \gcvariant{Regional}{Concurrent\ marking}    & 11.36  & 0.04  & 0.54  & 1.51   & 5.66   & 279.70 \\
-  \gcvariant{Garbage-First}{Non-generational}  & 9.51   & 0.04  & 0.19  & 1.79   & 6.40   & 548.71 \\
-  \gcvariant{Garbage-First}{Generational}      & 10.36  & 0.04  & 0.76  & 3.92   & 10.30  & 364.37 \\
-  \gcvariant{Shenandoah}{}                     & 4.12   & 0.04  & 0.11  & 1.11   & 4.32   & 488.65 \\
+  \gcvariant{Regional}{}                       & 85.74  & 37.92 & 73.26  & 138.55 & 416.36 \\
+  \gcvariant{Regional}{Linear-scan evacuation} & 110.06 & 55.28 & 101.05 & 160.78 & 424.84 \\
+  \gcvariant{Regional}{Concurrent\ marking}    & 11.36  & 0.04  & 1.51   & 67.06  & 279.70 \\
+  \gcvariant{Garbage-First}{Non-generational}  & 9.51   & 0.04  & 1.79   & 46.69  & 548.71 \\
+  \gcvariant{Garbage-First}{Generational}      & 10.36  & 0.04  & 3.92   & 44.21  & 364.37 \\
+  \gcvariant{Shenandoah}{}                     & 4.12   & 0.04  & 1.11   & 9.36  & 488.65 \\
   \bottomrule
 \end{tabular}
 
-\begin{tabular}{BCr^r^r^r^r^r^r^r}
+\begin{tabular}{BCr^r^r^r^r^r^r}
   \toprule
   \rowstyle{\bfseries}
   & \multicolumn{5}{c}{\textbf{Heap Size = 939\,MB}} &\\ 
-  Pause time (ms)                               & Mean & Min & 25\% & Mid & 75\% & Max \\
+  Pause time (ms)                              & Mean   & Min   & Mid    & 95\%   & Max     \\
   \midrule
-  \gcvariant{Regional}{}                       & 94.40  & 39.07 & 70.87 & 82.65  & 103.62 & 401.14  \\
-  \gcvariant{Regional}{Linear-scan evacuation} & 117.74 & 53.42 & 94.97 & 107.33 & 129.18 & 545.52  \\
-  \gcvariant{Regional}{Concurrent\ marking}    & 18.74  & 0.04  & 0.60  & 4.50   & 10.02  & 345.44  \\
-  \gcvariant{Garbage-First}{Non-generational}  & 11.52  & 0.04  & 0.67  & 4.46   & 10.42  & 803.90  \\
-  \gcvariant{Garbage-First}{Generational}      & 18.45  & 0.04  & 1.03  & 13.63  & 27.40  & 1198.33 \\
-  \gcvariant{Shenandoah}{}                     & 3.57   & 0.04  & 0.12  & 1.02   & 4.56   & 385.64  \\
+  \gcvariant{Regional}{}                       & 94.40  & 39.07 & 82.65  & 137.98 & 401.14  \\
+  \gcvariant{Regional}{Linear-scan evacuation} & 117.74 & 53.42 & 107.33 & 171.03 & 545.52  \\
+  \gcvariant{Regional}{Concurrent\ marking}    & 18.74  & 0.04  & 4.50   & 74.76 & 345.44  \\
+  \gcvariant{Garbage-First}{Non-generational}  & 11.52  & 0.04  & 4.46   & 45.52  & 803.90  \\
+  \gcvariant{Garbage-First}{Generational}      & 18.45  & 0.04  & 13.63  & 50.73  & 1198.33 \\
+  \gcvariant{Shenandoah}{}                     & 3.57   & 0.04  & 1.02   & 10.35  & 385.64  \\
   \bottomrule
 \end{tabular}
 
-\begin{tabular}{BCr^r^r^r^r^r^r^r}
+\begin{tabular}{BCr^r^r^r^r^r^r}
   \toprule
   \rowstyle{\bfseries}
   & \multicolumn{5}{c}{\textbf{Heap Size = 1414\,MB}} &\\ 
-  Pause time (ms)                               & Mean & Min & 25\% & Mid & 75\% & Max \\
+  Pause time (ms)                              & Mean   & Min   & Mid    & 95\%   & Max     \\
   \midrule
-  \gcvariant{Regional}{}                       & 100.92 & 38.83 & 76.12  & 88.16  & 109.37 & 449.50  \\
-  \gcvariant{Regional}{Linear-scan evacuation} & 131.52 & 51.83 & 105.11 & 121.82 & 147.83 & 463.21  \\
-  \gcvariant{Regional}{Concurrent\ marking}    & 21.18  & 0.04  & 0.41   & 4.43   & 13.77  & 281.24  \\
-  \gcvariant{Garbage-First}{Non-generational}  & 13.40  & 0.03  & 0.65   & 4.20   & 15.81  & 926.35  \\
-  \gcvariant{Garbage-First}{Generational}      & 27.82  & 0.04  & 18.45  & 25.98  & 32.84  & 820.84  \\
-  \gcvariant{Shenandoah}{}                     & 5.28   & 0.04  & 0.13   & 1.50   & 4.71  & 549.97   \\
+  \gcvariant{Regional}{}                       & 100.92 & 38.83 & 88.16  & 187.50 & 449.50  \\
+  \gcvariant{Regional}{Linear-scan evacuation} & 131.52 & 51.83 & 121.82 & 197.04 & 463.21  \\
+  \gcvariant{Regional}{Concurrent\ marking}    & 21.18  & 0.04  & 4.43   & 82.69  & 281.24  \\
+  \gcvariant{Garbage-First}{Non-generational}  & 13.40  & 0.03  & 4.20   & 43.27  & 926.35  \\
+  \gcvariant{Garbage-First}{Generational}      & 27.82  & 0.04  & 25.98  & 54.36  & 820.84  \\
+  \gcvariant{Shenandoah}{}                     & 5.28   & 0.04  & 1.50   & 13.63 & 549.97   \\
   \bottomrule
 \end{tabular}
 
-\begin{tabular}{BCr^r^r^r^r^r^r^r}
+\begin{tabular}{BCr^r^r^r^r^r^r}
   \toprule
   \rowstyle{\bfseries}
   & \multicolumn{5}{c}{\textbf{Heap Size = 1971\,MB}} &\\ 
-  Pause time (ms)                               & Mean & Min & 25\% & Mid & 75\% & Max \\
+  Pause time (ms)                              & Mean   & Min   & Mid    & 95\%   & Max     \\
   \midrule
-  \gcvariant{Regional}{}                       & 114.97 & 39.53 & 79.62  & 105.31 & 134.58 & 415.50  \\
-  \gcvariant{Regional}{Linear-scan evacuation} & 150.84 & 56.66 & 111.01 & 138.37 & 179.26 & 420.24  \\
-  \gcvariant{Regional}{Concurrent\ marking}    & 23.98  & 0.04  & 0.42   & 4.19   & 28.10  & 310.79  \\
-  \gcvariant{Garbage-First}{Non-generational}  & 15.52  & 0.04  & 0.54   & 4.38   & 20.21  & 2010.66 \\
-  \gcvariant{Garbage-First}{Generational}      & 29.20  & 0.04  & 20.68  & 25.52  & 31.44  & 487.91  \\
-  \gcvariant{Shenandoah}{}                     & 5.55   & 0.04  & 0.13   & 1.08   & 4.68   & 613.34  \\
+  \gcvariant{Regional}{}                       & 114.97 & 39.53 & 105.31 & 215.11 & 415.50  \\
+  \gcvariant{Regional}{Linear-scan evacuation} & 150.84 & 56.66 & 138.37 & 234.80 & 420.24  \\
+  \gcvariant{Regional}{Concurrent\ marking}    & 23.98  & 0.04  & 4.19   & 93.37  & 310.79  \\
+  \gcvariant{Garbage-First}{Non-generational}  & 15.52  & 0.04  & 4.38   & 46.07  & 2010.66 \\
+  \gcvariant{Garbage-First}{Generational}      & 29.20  & 0.04  & 25.52  & 52.58  & 487.91  \\
+  \gcvariant{Shenandoah}{}                     & 5.55   & 0.04  & 1.08   & 18.06  & 613.34  \\
   \bottomrule
 \end{tabular}
 

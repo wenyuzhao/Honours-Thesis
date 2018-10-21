@@ -7,13 +7,13 @@
 \begin{tabular}{BCr^r^r}
   \toprule
   \rowstyle{\bfseries}
-  Overheads (ns) & Average & 95\% CI \\
+  Overheads (ns) & \gcvariant{Garbage-First}{Non-generational} & \gcvariant{Garbage-First}{Generational} \\
   \midrule 
-  637\,M & 88.09\% & $\pm$162.98\% \\
-  939\,M & 98.35\% & $\pm$116.13\% \\
-  1414\,M & 82.94\% & $\pm$86.65\% \\
-  1971\,M & 77.86\% & $\pm$86.32\% \\
-  Overall & 86.76\% & $\pm$117.59\% \\
+  637M           & \cival{10.26\%}{26.26\%} & \cival{5.72\%}{15.21\%} \\
+  939M           & \cival{ 5.71\%}{14.52\%} & \cival{2.24\%}{ 7.74\%} \\
+  1414M          & \cival{ 4.75\%}{10.95\%} & \cival{2.38\%}{ 6.76\%} \\
+  1971M          & \cival{ 9.41\%}{46.04\%} & \cival{2.21\%}{ 6.94\%} \\
+  Overall        & \cival{ 9.56\%}{ 7.09\%} & \cival{8.36\%}{ 6.99\%} \\
   \bottomrule
 \end{tabular}
   
@@ -23,3 +23,4 @@
 %%% mode: latex
 %%% TeX-master: t
 %%% End: 
+

@@ -84,7 +84,7 @@ The adaptive compiler can have non-deterministic behaviours when performing dyna
 compilations and optimizations to the executing Java program. In order to minimize
 such non-deterministic behaviours and makes the program executes more faster, I performed
 the measurement methodology called "warmup replay", which was firstly introduced by
-\cite{yang2012barriers}, as a refinement of the "pseudoadaptive approach" introduced by \cite{blackburn2004barriers}.
+\cite{yang2012barriers}, as a replacement of the "pseudoadaptive approach" introduced by \cite{blackburn2004barriers}.
 
 This methodology performs a execution of 10 iterations for each benchmark suite to
 collect runtime execution informations before the measurement, to assist with more optimized compilation.
@@ -156,6 +156,13 @@ latency timer to start recording logs or dump all logs.
   \caption{Pause times of 6 collectors}
   \label{fig:pausetime}
 \end{figure*}
+
+\begin{table*}
+  \centering
+  \input table/full-gc-ratio.tex
+  \caption{Ratio of full gc}
+  \label{tab:remsetfootprint}
+\end{table*}
 
 Figure~\ref{fig:pausetime} shows the results of the GC latency time
 evaluated on all 6 garbage collectors discussed in section~\ref{cha:implementation}.
@@ -234,8 +241,8 @@ The mutator execution time is calculated as the execution time of the benchmarki
 stop-the-world gc time excluded.
 
 As discussed in chapter~\ref{cha:implementation}, I implemented the Garbage-first
-family of collectors by performing progressive refinements on a simple region-based collector.
-In this way, after each refinement on a collector, we can measure the overhead of
+family of collectors by performing progressive improvements on a simple region-based collector.
+In this way, after performing an algorithmic improvement on a collector, we can measure the overhead of
 the newly involved barriers or other technologies by comparing the benchmarking results
 of the old collector and the new collector.
 
@@ -291,6 +298,14 @@ as well as their 95\% confidence interval on different heap sizes.
 
 \subsection{Evaluation metrices}
 \subsection{Results}
+
+\begin{table*}
+  \centering
+  \input table/remset-size.tex
+  \caption{Remembered set footprint}
+  \label{tab:remsetfootprint}
+\end{table*}
+
 \subsection{Discussion}
 
 \section{Summary} % 2
