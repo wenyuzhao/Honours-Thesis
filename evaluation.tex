@@ -161,7 +161,7 @@ latency timer to start recording logs or dump all logs.
   \centering
   \input table/full-gc-ratio.tex
   \caption{Ratio of full gc}
-  \label{tab:remsetfootprint}
+  \label{tab:fullgc}
 \end{table*}
 
 Figure~\ref{fig:pausetime} shows the results of the GC latency time
@@ -214,7 +214,12 @@ By using the generational G1 GC, young/nursery GCs are usually triggered several
 before a major GC happens. Also nursery GCs are fully stop-the-world and always tries
 to collect as much nursery regions as possible, as long as the pause time does not exceeds
 the pre-defined pause time goal. This results in the incease of GC pause times.
-\pending{Any benefits ??????}
+However, generational collection can largely reduces the probability of G1 GC falling
+back to full GCs. As shown in \ref{tab:fullgc}, I measured the overall full GC ratio
+for both non-generational and generational G1 GC on four different heap sizes,
+with 95\% confidence interval reported as well.
+Based on the results, with generational mode, G1 reduces the
+probability of falling back to full GC by 12.5\%.
 
 The Shenandoah GC performs marking, evacuation and reference updating in concurrent,
 this significantly reduces the pause time by 72.6\%, compared to the concurrnet marking version
