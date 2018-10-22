@@ -4,9 +4,9 @@
 
 % Problem
 
-Region-based garbage collectors, including Garbage-first GC, Shenandoah GC, C4 GC and ZGC,
+Region-based garbage collectors, including Garbage-first GC, Shenandoah GC, C4 GC, and ZGC,
 share a lot of common designs and algorithms, such as
-the similar marking algorithm, memory structure and allocation algorithm.
+the similar marking algorithm, memory structure, and allocation algorithm.
 However, the existence of such underlying relationship among these collectors
 has never been well identified and explored.
 Instead, the designers of these region-based collectors tend to treat these as
@@ -14,31 +14,31 @@ stand-alone collectors instead of an improvement to the existing collector.
 Such ignorance of the underlying relationships among the region-based collectors
 can mislead the future design of related garbage collectors. 
 
-Hence, analysis, measurements and comparisons among these collectors can also be hard.
+Hence, analysis, measurements, and comparisons among these collectors can also be hard.
 Although the design and algorithms of these collectors are similar,
-their structural relationships are not reflected to the
+their structural relationships are not reflected in the
 original design and implementations of these collectors.
-For this reason no one have ever succsessfully measured
+For this reason, no one has ever successfully measured
 the GC performance contribution of some specific part of the GC algorithm or the extension component involved
 in these collectors.
 Which means no one can properly understand the pros and cons
-of the design of these collectors, and may further leads to some potential performance
+of the design of these collectors, and may further lead to some potential performance
 issue due to the inappropriate GC design.
 
 % Contribution
 
-As the fundamental novel contribution, this thesis is the first to prove the existence of a potential
+As the fundamental novel contribution, this thesis is the first to identify the existence of a
 structural relationship among the region-based collectors and makes a deep exploration
-of the structural relationships among a set of region-based collectors which have similar
-design to the Garbage-First GC. In thesis I use the term
+of the structural relationships among a set of region-based collectors which have a similar
+design to the Garbage-First GC. In this thesis I use the term
 "The Garbage-First Family of Garbage Collectors" to describe such category of collectors.
 
 This thesis produces the first implementation to reflect the previously
 discovered structural relationships.
-Sperifically, in this thesis, I discuss the implementation details of a total of six G1 family
+Specifically, in this thesis, I discuss the implementation details of a total of six G1 family
 of collectors, starting from a simple region-based
 collector to the Garbage-first GC and Shenandoah GC.
-Each collector are implemented as a improved version of the previous collector to reflected
+Each collector is implemented as an improved version of the previous collector to reflected
 the corresponding algorithmic relationship.
 
 Based on such implementation, this thesis performs a detailed
@@ -49,18 +49,17 @@ and the space overhead of remembered-sets.
 % Results
 
 The exploration of the Garbage-First Family of Garbage Collectors leads to a conclusion
-that there exist a structural relationship among these G1 family of collectors.
-Instead of being stand-alone collector, they tend to be collectors with
+that there exists a structural relationship among these G1 family of collectors.
+Instead of being stand-alone collectors, they tend to be collectors with
 algorithmic improvements to some existing collectors.
 
 As the result of the GC performance evaluation,
 structural components including concurrent-marking, remembered-sets and concurrent
-evacuation contributes to a improvement of \pending{???}\%, \pending{???}\% and \pending{???}\%
+evacuation contributes to an improvement of 88.5\%, 10.7\% and 72.6\%
 respectively to the average GC pause time on the DaCapo benchmark suite.
-By using remembered-sets, G1 has \pending{???}\% average footprint overhead.
+By using remembered-sets, G1 has 8.36\% average footprint overhead.
 Mutator barriers performance SATB barrier, remembered-set barrier,
-and Brooks barrier increases the mutator overheads by \pending{???}\%, \pending{???}\%
-and  \pending{???}\%
+and Brooks barrier increases the mutator overheads by 22.0\%, 59.6\%, and 85.46\%
 respectively.
 
 % Meaning

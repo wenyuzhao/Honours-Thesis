@@ -18,11 +18,11 @@ which is implemented in the Java programming language and is self hosted.
 JikesRVM was designed to provide a flexible open sourced test-bed to
 experiment with virtual machine related algorithms and technologies.
 
-In stead of executing Java programs by directly interpreting the Java byte code,
+Instead of executing Java programs by directly interpreting the Java byte code,
 JikesRVM compiles them into machine code and executes them.
 During the build time, JikesRVM requires a hosting JVM to run the boot image compiler
 to compile the whole JikesRVM into machine code.
-Then during running time, when loading Java class files and invoking java methods,
+Then during running time, when loading Java class files and invoking Java methods,
 JikesRVM will compile the related Java byte code into corresponding machine code and execute it.
 
 JikesRVM implemented two tiers of compilers, the baseline compiler and the optimizing compiler.

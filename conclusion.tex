@@ -4,48 +4,48 @@
 This thesis is aiming to identify and explore the underlying relationship of the
 G1 family of garbage collectors as well as analyze the performance impact caused by
 each structural components.
-The explorations and discussion in the previous chapters have successfully demostrates
+The explorations and discussions in the previous chapters have successfully demonstrated
 that the relationship among the G1 family of collectors exists and can impact the GC
 performance in both positive and negative ways.
-Hence the pros and cons of each algorithm and the cause of these phenomenons
+Hence the pros and cons of each algorithm and the cause of these phenomena
 are discussed based on the evaluation results.
 
 \section{Future Work}
 \label{sec:future}
 
 Although this thesis has come to an end, the research on this topic is far to finish.
-There are still much work to do after this research project.
+There is still much work to do after this research project.
 In general, a few typical future works are:
-$1.$ Resolve a data rece problem for Shenandoah GC.
+$1.$ Resolve a data race problem for Shenandoah GC.
 $2.$ Perform some optimizations
 $3.$ Exploring C4 GC and ZGC.
 $4.$ Further G1 related GC research
 
 \subsection{Race problem for Shenandoah GC}
 
-Currently the implementation of Shenandoah GC has a data race problem.
-Based on the previous analysis, the mutator is not lock and release a monitor
+Currently, the implementation of Shenandoah GC has a data race problem.
+Based on the previous analysis, the mutator is not locking and releasing monitors
 expectedly during the concurrent phase of the Shenandoah GC, when there can be
 two different copies of an object exist in the heap.
 
-Duo to the time scope of thie thesis, I cannot solve this issue currently.
-But currently a work-around is implemented in the Shenandoah GC, with a lower mutator performance.
+Due to the time scope of this thesis, I cannot solve this issue currently.
+But currently, a workaround is implemented in the Shenandoah GC, with a lower mutator performance.
 This explains the bad performance of mutator overhead we evaluated in chapter~\ref{cha:evaluation}.
-As the most urgent problem I are facing, I plan to solve this issue immediately after
+As the most urgent problem I am facing, I plan to solve this issue immediately after
 this project.
 
 \subsection{Optimizations}
 
 As part of the mutator latency results discussed in chapter~\ref{cha:evaluation},
-the generational G1 currently does not reveal any peprformance gain compared to
+the generational G1 currently does not reveal any performance gain compared to
 the non-generational G1. It is expected to have more optimizations and parameter
 tuning to the generational G1 to further increase its performance.
 
 I am also considering the possibility to make the implemented Garbage-first
-and Shenandoah GC become production ready. One major part missing is the Optimizations
+and Shenandoah GC become production ready. One major part missing is the optimizations
 since the development of these garbage collectors was following the original design
-of these collectors and did not have too much optimizations. After performing some
-optimizations on these collectors as well as some additional correctness verfication,
+of these collectors and did not have too many optimizations. After performing some
+optimizations on these collectors as well as some additional correctness verification,
 the collector can have the possibility to become production ready.
 
 \subsection{C4 GC and ZGC}
@@ -55,19 +55,19 @@ In addition, since JikesRVM and MMTk only supports the 32bit address space but t
 coloring process in ZGC requires the 64bit address space, this makes the implementation
 of ZGC more difficult.
 
-However, as the most latest member of the Garbage-first family of collectors, C4/ZGC
+However, as the latest member of the Garbage-first family of collectors, C4/ZGC
 generally has better performance than G1 GC and Shenandoah GC. By performing most of the
-GC work in concurrent, the pause time of C4/ZGC is not propotional to the heap size and
-are expected to be less than 10 millliseconds even targeting 100\,GB heaps (\cite{liden_karlsson_2018}).
-In this way these two collectors are extremely worth for an exploration.
+GC work in concurrent, the pause time of C4/ZGC is not proportional to the heap size and
+are expected to be less than 10 milliseconds even targeting 100\,GB heaps (\cite{liden_karlsson_2018}).
+In this way, these two collectors are extremely worth for an exploration.
 
-However, a detailed plan of resolving several hardware incompactabilities should be done in the future,
+However, a detailed plan for resolving several hardware incompatibilities should be done in the future,
 before starting the implementation of these two collectors.
 
 \subsection{Future G1 related GC research}
 
-The Garbagr-first family of garbage collectors have been proved to be high performance,
-in terms of GC latency and mutator overheads. However, the measurement results is still
+The Garbage-first family of garbage collectors have been proved to be high performance,
+in terms of GC latency and mutator overheads. However, the measurement results are still
 not perfect, which means there are a lot more can be done to further improve the
 GC performance.
 
@@ -79,7 +79,7 @@ sets used in G1, the buffer-based remembered sets introduced by \cite{blackburn2
 also be explored as a comparison to G1's remembered sets.
 
 There are still many details of G1 related garbage collection algorithms can be
-explored. By performing more improvements on the existing Garbagr-first family of collectors
+explored. By performing more improvements on the existing Garbage-first family of collectors
 (e.g. the Shenandoah GC), the GC performance can be expected to have more improvements.
 
 \section{Summary}
@@ -91,17 +91,17 @@ reflect such relationships and analyze the GC performance impact of different al
 As discussed in previous chapters, the potential relationships among the G1 family of collectors
 are successfully discovered and discussed.
 Based on such relationships, this thesis produces the first implementation of the
-G1 family of collectors that reflect to the underlying algorithmic relationships.
+G1 family of collectors that reflect on the underlying algorithmic relationships.
 Most of my implementations result in a reasonable
 or even unexpectedly performance for either GC pause time and mutator overheads.
-Based on these implementations and measurement results, the pros and cons as well
-as their underlying reasons are explored and discussed.
+Based on these implementations and measurement results, the pros and cons, as well
+as their underlying reasons, are explored and discussed.
 Hence, the explorations performed in this thesis can inspire GC designers to
 reconsider the design and structure of region-based GC algorithms to make
 further valuable improvements and invent new algorithms.
 
 In conclusion, the relationships among the G1 family of collectors exist and have
-impact to the GC performance in many ways, including negative performance impacts.
+an impact on the GC performance in many ways, including negative performance impacts.
 Which mean there is still a lot to improve and more research should be done in this area.
 
 % Implelemtations I did
