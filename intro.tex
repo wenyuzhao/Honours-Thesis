@@ -52,7 +52,7 @@ As an example, according to \cite{nguyen2015speculative}, sometimes GC time of r
 can take up to 50\% of the total execution time of Big Data systems.
 On the other hand, this can also mislead the future design of related collectors.
 
-So here comes the problem which this thesis is aiming to solve: What are the relationships
+So here comes the problem which this thesis is aimed to solve: What are the relationships
 among the G1 family of collectors and in which way do they contribute to GC performance?
 
 % Challenge
@@ -95,7 +95,7 @@ the performance contribution caused by each part of the GC algorithm, hence prev
 GC designers from truly understanding the pros and cons of each GC algorithm.
 
 This thesis makes an exploration of the underlying relationship among the
-G1 family of garbage collectors. The algorithmic relationships are summarised
+G1 family of garbage collectors. The algorithmic relationships are summarized
 as a series of progressive improvements, which generally reflects the evolutionary
 history of the G1 family of collectors.
 
@@ -111,8 +111,8 @@ The general steps involved in this thesis for exploring these collectors include
 
 \begin{quote}
   \textbf{Discover the relationships}
-    of the G1 family of garbage collectors includeing understanding the basic algorithms
-    of these collectors, infering the underlying relationships among them and reconsidering them as
+    of the G1 family of garbage collectors including understanding the basic algorithms
+    of these collectors, inferring the underlying relationships among them and reconsidering them as
     a series of algorithmic improvements instead of individual isolated collectors.
 
   \textbf{Implement a simple mark-region collector}
@@ -127,7 +127,7 @@ The general steps involved in this thesis for exploring these collectors include
     mark-region collectors, the Garbage-First GC and the Shenandoah GC.
 
   \textbf{Measure GC performance}
-    includeing measuring the GC pause times of all implemented collectors, the 
+    including measuring the GC pause times of all implemented collectors, the 
     barrier overheads and the remembered set size. These measurements reflect the
     performance gain due to each algorithmic improvement.
 

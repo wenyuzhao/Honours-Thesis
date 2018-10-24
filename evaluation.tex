@@ -3,31 +3,32 @@
 
 Answering the question of GC performance under a real-world setting,
 this chapter discusses the performance evaluation I undertook for analyzing
-the Garbage-First family of garbage collectors. This chapter will firstly describe the software and hardware platform I used for benchmarking,
-Then the detailed evaluation process and results of both pause time and
-barrier latency will be presented and discussed.
+the Garbage-First family of garbage collectors.
+This chapter will firstly describe the software and hardware platform I used for benchmarking.
+Then the detailed evaluation process and results of pause time,
+barrier latency, and remembered-set footprint will be presented and discussed.
 
 Section~\ref{sec:dacapo} and \ref{sec:hardware} roughly introduce the experimental
 platform and software involved for the performance measurements.
-Section~\ref{sec:generalmethod} discusses the generall evaluation method used to
+Section~\ref{sec:generalmethod} discusses the general evaluation method used to
 evaluate the performance of all the interested metrics.
 Section~\ref{sec:pausetime}, \ref{sec:barrierlatency} and \ref{sec:remsetsize} discusses the detailed
 measurement steps involved to evaluate the GC pause time, barrier overhead and remembered set size
 respectively, as well
-as figures of the results and the discussion based on the results.
+as figures of the results and the resulting discussions.
 
-\section{The Dacapo Benchmark} % 2
+\section{The DaCapo Benchmark} % 2
 \label{sec:dacapo}
 
-The Dacapo Benchmark Suite is a tool for Java benchmarking and contains a set of
+The DaCapo Benchmark Suite is a tool for Java benchmarking and contains a set of
 open-sourced real-world programs with a high memory load.
 
-The Dacapo Benchmark is frequently used during the development of the G1 family
+The DaCapo Benchmark is frequently used during the development of the G1 family
 of garbage collectors in chapter~\ref{cha:implementation}, as a validation program
 to verify the correctness of the collectors under a real-world setting.
 
-I also performed pause time evacuations and barrier latency evaluation
-on all of the following Dacapo Benchmark suites.
+I also performed pause time evaluations and barrier latency evaluation
+on all of the following DaCapo Benchmark suites.
 The benchmarking suites I used for evaluation includes (\cite{Blackburn:2006:DBJ:1167515.1167488}):
 
 \begin{itemize}
@@ -37,24 +38,27 @@ The benchmarking suites I used for evaluation includes (\cite{Blackburn:2006:DBJ
   \item \textbf{lusearch} Uses lucene to do a text search of keywords over a corpus of data comprising the works of Shakespeare and the King James Bible
   \item \textbf{pmd} Analyzes a set of Java classes for a range of source code problems
   \item \textbf{xalan} Transforms XML documents into HTML
+  \item \textbf{eclipse} executes some of the (non-gui) jdt performance tests for the Eclipse IDE
   \item \textbf{avrora} Simulates a number of programs run on a grid of AVR microcontrollers
   \item \textbf{sunflow} Renders a set of images using ray tracing
 \end{itemize}
 
 By performing evaluations on a wide range of benchmarking suites which represents different
-classes of real-world programs, it is more possible to understand the pros and cons
+class of real-world programs, it is more possible to understand the pros and cons
 of the G1 family of collectors under a real-world setting.
 
 \section{Hardware Platform} % 2
 \label{sec:hardware}
 
-During the implementation of all the G1 family of garbage collectors in chapter~\ref{cha:implementation},
+During the implementation and evaluation of all the G1 family of garbage collectors in chapter~\ref{cha:implementation},
 a list of machines with a large variety on CPU types, clock, number of processors and
-the size of cache and memory were involved, as shown in Table~\ref{tab:machines}.
-By executing all the benchmarking suite of the Dacapo Benchmark on these different machines,
-and thanks to the benchmarking suites of the Dacapo Benchmark which reflect
-different categories of programs in the real world,
-we have the ability to statistically verify the correctness of the previously
+the size of cache and memory were involved, as shown in table~\ref{tab:machines}.
+
+As part of the implemensation process,
+by executing the different benchmarking suites of the DaCapo Benchmark on these different machines,
+% and thanks to the benchmarking suites of the DaCapo Benchmark which reflect
+% different categories of programs in the real world,
+I have the ability to statistically verify the correctness of the previously
 implemented garbage collectors (in chapter~\ref{cha:implementation})
 and make sure they perform as intended in a real-world setting.
 
@@ -71,8 +75,8 @@ For further performance evaluation, the "fisher" machine was used for the final 
 \label{sec:generalmethod}
 
 I perform both GC pause time and barrier overhead measurements on the optimized build
-of the JikesRVM, with 6 different GC configurations for the 6 GCs to be measured respectively.
-To collect measurement results, I execute all 10 DaCapo benchmark suites discussed in section~\ref{sec:dacapo}
+of the JikesRVM, with 6 different builds for the 6 GCs to be measured respectively.
+To collect measurement results, I executed all 10 DaCapo benchmark suites discussed in section~\ref{sec:dacapo}
 on all 6 collectors, with respect to 4 different heap sizes, 637\,MB, 939\,MB, 1414\,MB, and 1971\,MB
 respectively. Each benchmark suite is executed 10 times for each configuration of $(GC, HeapSize)$ to
 collect more precise results and avoids the error due to some unexpected environmental fluctuations.
@@ -82,17 +86,17 @@ collect more precise results and avoids the error due to some unexpected environ
 
 The adaptive compiler can have non-deterministic behaviors when performing dynamic
 compilations and optimizations to the executing Java program. In order to minimize
-such non-deterministic behaviors and makes the program executes more faster, I performed
+such non-deterministic behaviors and make the program executes more faster, I performed
 the measurement methodology called "warmup replay", which was firstly introduced by
 \cite{yang2012barriers}, as a replacement of the "pseudoadaptive approach" introduced by \cite{blackburn2004barriers}.
 
 This methodology performs an execution of 10 iterations for each benchmark suite to
 collect runtime execution information before the measurement, to assist with more optimized compilation.
 Then during measurements, after the first iteration of warmups, JikesRVM compiles all
-methods by using the advice information generated previously to avoid any re-compiling
+methods with the advice information generated previously to avoid any re-compilation
 behaviors during the following measurement iteration.
 
-I ran all of the 9 benchmark suites discussed in section~\ref{sec:dacapo} on each collector
+I ran all of the 10 benchmark suites discussed in section~\ref{sec:dacapo} on each collector
 for 10 times, with 2 times of warmup execution before the timing iteration.
 JikesRVM performs warmup-replay compilation at the end of the first warmup iteration.
 
@@ -110,36 +114,36 @@ stop-the-world phase during each GC cycle, I implemented a mutator latency timer
 to perform a more precise calculation of mutator pause times.
 
 The mutator latency timer contains a static "three-dimensional" array:\\
-\centerline{\textjava{static long[] LOGS = long[THREAD ID * EVENT ID * NUM_LOGS]}}
+\centerline{\textjava{static long[] LOGS = long[THREAD_ID * EVENT_ID * NUM_LOGS]}}
 This array is statically allocated within the VM Space to record the timestamp (in nanoseconds)
-of each event, for each mutator. The first dimension is the thread id of all
+of each event and each mutator. The first dimension is the thread id of all
 mutators. The second dimension is the event id. The third dimensional \textjava{NUM_LOGS} is the
-max number of logs of one thread and is currently set to $1024$. Particularly under
+max number of logs of one $(event_id, event_id)$ combination and is currently set to $1024$. Particularly under
 the current context, to measure the pause time for each mutator, two events,
 \textjava{MUTATOR_PAUSE} and \textjava{MUTATOR_RESUME} are defined to record the time when a
-mutator thread starts waiting for GC complete and the time when a mutator gets resumed for execution.
+mutator thread starts waiting for GC complete and the time when a mutator gets resumed from a GC pause for execution.
 
-In JikesRVM, a mutator thread checks for GC requests and starts waiting if necessary every
-time it reaches a yieldpoint, which may trigger a \textjava{MUTATOR_PAUSE} event if it should
+In JikesRVM, every time the program reaches a yieldpoint, the mutator
+thread checks for GC requests and starts waiting if necessary , which will trigger a \textjava{MUTATOR_PAUSE} event if it should
 be paused. After a stop-the-world cycle is finished, before continuing for further execution,
-it triggers a \textjava{MUTATOR_RESUME} event.
+it triggers a \textjava{MUTATOR_RESUME} event immediately after gets resumed
 
 At the end of the benchmark execution, the mutator latency timer will dump all the
 data in the \textjava{LOGS} array to the print buffer for further data analysis.
 
-As an output of the analysis of the overhead data, I report the minimum, 25\%, 50\%,
-75\% and maximum mutator pause time for each GC, each benchmark suite and each heap size.
+As an output of the analysis of the overhead data, I report the minimum, 50\%,
+95\% and maximum mutator pause time for each GC, each benchmark suite and each heap size.
 
 \subsection{MMTk harness callbacks}
 
-During each iteration of benchmarking, the Dacapo benchmark has several warm-up
+During each iteration of benchmarking, the DaCapo benchmark has several warm-up
 executions which will run the benchmark suite a few times to warm up the cache and JVM.
 Then the DaCapo benchmark will start the actual benchmarking run. I use a probe called \textjava{MMTKCallback}
 which will call the \textjava{org.mmtk.plan.Plan.harnessBegin} method
-before the final benchmarking execution and call the \textjava{org.mmtk.plan.Plan.harnessEnd}
+before the start of the final benchmarking execution and call the \textjava{org.mmtk.plan.Plan.harnessEnd}
 after the final benchmarking execution. Based on this, the two callbacks
 \textjava{harnessBegin} and \textjava{harnessEnd} are used to calculate the inform the mutator
-latency timer to start recording logs or dump all logs.
+latency timer to start recording logs or dump all recorded logs.
 
 \subsection{Results}
 
@@ -164,46 +168,48 @@ latency timer to start recording logs or dump all logs.
   \label{tab:fullgc}
 \end{table*}
 
-Figure~\ref{fig:pausetime} shows the results of the GC latency time
+Table~\ref{tab:pause} shows the results of the GC latency time
 evaluated on all 6 garbage collectors discussed in section~\ref{cha:implementation}.
-Each subfigure shows
-the overall GC latency time for each garbage collector. Specifically, the
-average, minimum, medium, 95\% percentile and maximum GC latency time nanoseconds
-were reported for each collector and each heap size.
+Specifically, the average, minimum, medium, 95\% percentile and maximum GC latency time nanoseconds
+for each collector and each heap size,
+as well as the overall GC latency time for each garbage collector
+were reported.
 
-To present the results more clearly, the benchmarking results are presented as
-a set of box plots and with log-scaled pause time y in nanoseconds as the y-axis.
+To present the results more clearly, figure~\ref{fig:pausetime} shows
+the benchmarking results as a set of box plots with log-scaled pause time in nanoseconds as the y-axis.
+Each subfigure shows the overall GC latency time for each garbage collection algorithm.
 
 \subsection{Discussion}
 
-As the most simple form of the G1 family of GC, the Regional collector, performs fully
+As the most simple form of the G1 family of GC, the naive region-based collector, performs fully
 stop-the-world GC during each GC cycle. Works for each GC cycle includes marking all
-live objects and walk over the object graph to evacuate objects in a set of selected memory
-regions. Totally 2 full heap tracings are performed during each GC cycle, which makes the GC
-pause time longer. The average pause time for this Regional GC generally ranges from $104$ to $147$
+live objects and walking over the object graph to evacuate objects that are in a set of selected memory
+regions. Totally 2 full heap tracings are performed during each GC cycle, which make the GC
+pause time longer. The average pause time for this naive region-based GC generally ranges from $104$ to $147$
 milliseconds and increases as the heap size increases.
 
-By performing linear scan based evacuation, the linear-scan evacuation version of the regino-based
-GC has to scan the memory regions in the collection set twice, one for exacuating live objects and
-one for updating references. In this way, the collector generally has longer pause times,
+By performing linear scan based evacuation, the linear-scan evacuation version of the region-based
+GC perform a separate linear scanning over the collection set
+to evacuate live objects.
+In this way, the collector generally has longer pause times,
 which ranges from $110.1$ to $150.8$ milliseconds on average and increases as the heap size increases.
 Linear scan evacuation increases the 95 percentile GC pause time by 15.8\%.
-Although performing linear scan evacuation can largely increase the GC pause time,
-this independent phase is an important part for G1 GC and the Shenandoah GC.
+Although performing linear scan evacuation can increase the GC pause time,
+this independent phase is an important component for G1 GC and the Shenandoah GC.
 
 After performing concurrent marking in addition to the linear scan based evacuation,
-the resulting ConcRegional collector split the pause for marking into several smaller
+the resulting concurrent-marking region-based collector splits the pause for marking into several smaller
 pauses and performs most of the marking work concurrently without stopping the mutators.
 This makes the total pause time for a GC smaller and significantly reduces the 95 percentile
 GC pause time by 58.2\%.
 
 The non-generational G1 reduces the collection size to meet a pause time goal of 100\,ms.
 Based on the benchmarking results, at least 95\% of the pauses are less than the pre-defined
-pause time goal. On the other hand, G1 uses remembered sets to update references
-instead of performing full heap tracing.
+pause time goal. G1 uses remembered sets to update references
+instead of performing a full heap tracing.
 For heap sizes of 637\,MB, 939\,MB, 1414\,MB, and 1971\,MB, this
 partial heap scanning technique reduces 95 percentile pause time by 30.4\%, 39.1\%, 47.7\% and 50.7\%
-respectively. This reverals that the remembered sets based references updating has more benefits on
+respectively. This reveals that the remembered sets based references updating has more benefits on
 larger heaps. However, the full GC becomes more expensive because of the large work required
 to update all the remembered sets in the heap, which usually results in a pause time
 ranges from 0.5\,s to 1.0\,s.
@@ -213,7 +219,7 @@ before a major GC happens. Also, nursery GCs are fully stop-the-world and always
 to collect as much nursery regions as possible, as long as the pause time does not exceed
 the pre-defined pause time goal. This results in the increase of GC pause times.
 However, the generational collection can largely reduce the probability of G1 GC falling
-back to full GCs. As shown in Table~\ref{tab:fullgc}, I measured the overall full GC ratio
+back to full GCs. As shown in table~\ref{tab:fullgc}, I measured the overall full GC ratio
 for both non-generational and generational G1 GC on four different heap sizes,
 with a 95\% confidence interval reported as well.
 Based on the results, with the generational mode, G1 reduces the
@@ -273,10 +279,10 @@ all deleted nodes (i.e. the old object field when performing assignment \textjav
 A major difference between the SATB barrier used in these region-based collectors and
 the concurrent mark-sweep GC is that the concurrent mark-sweep GC only marks objects
 when tracing an object (the mark data is usually stored in the object header).
-But the currently implemented G1 family of collectors have to count the live bytes
+But the G1 family of collectors have to count the live bytes
 for each region to assist with further collection set selection.
-Also, these G1 family of collectors uses off-heap mark table instead of object header to store
-mark data. For these reasons, a lot of atomic operations should be done during concurrent
+Also, these G1 family of collectors use off-heap mark table instead of object header to store
+liveness data. For these reasons, a lot of atomic operations are involved during concurrent
 marking which further reduces the mutator throughput, compared to the concurrent mark-sweep GC.
 % The data shows that the SATB barrier increases the average mutator overhead by 92.93\%,
 % which is an unignorable overhead. As a significant reason for causing such large overhead,
@@ -296,7 +302,7 @@ as well as their 95\% confidence interval on different heap sizes.
 
 This result represents the mutator overhead of both remembered-set barriers and concurrent remset refinements.
 The design of the remembered-set barriers and the remset refining process follows
-the original design of G1 where only 1 thread is used to process the dirty card
+the original design of G1 that only 1 thread is used to process the dirty card
 buffer and it only awakes for processing when the card buffer is full.
 
 Based on the measurement results, the overhead of remembered-set barriers is not low,
@@ -325,7 +331,7 @@ is increased by 85.5\%.
 
 This is a significant high overhead. The reason for causing this is the use of 
 "use barriers" which insert a barrier every time the JVM wants to access and use
-an object reference. In addition, during the concurrent evacuation phase,
+an object reference. In addition, as described in section~\ref{sec:shenandoahgc}, during the concurrent evacuation phase,
 an extra barrier is used for every object comparison operation
 to ensure the correct comparison between the forwarded and unforwarded pointer of the same object reference,
 which further increases the mutator overhead.
@@ -368,20 +374,20 @@ to reflect the space performance of remembered-sets:
 versus the total committed memory at some specific execution point.
 This metric reflects the proportion of the heap that remembered-sets are actually take up.
 
-$$ \text{Committed Memory Ratio} = \frac{\text{Committed memory for remset}}{\text{Total committed memory}} $$
+$$ \text{Committed Memory Ratio} = \frac{\text{Committed memory for remset}}{\text{Total committed memory}} * 100\% $$
 
 \textbf{Utilization Ratio} is the ratio of the memory (in bits) actually used for
 remembered-sets to remember the cards, versus the total memory allocated for remembered-sets.
 This metric reflects the proportion of the remembered-sets that is actually in use
 and not be wasted.
 
-$$ \text{Utilization Ratio} = \frac{\text{Bits actually used for store cards}}{\text{Committed memory for remset in Bits}} $$
+$$ \text{Utilization Ratio} = \frac{\text{Bits actually used for store cards}}{\text{Committed memory for remset in Bits}} * 100\% $$
 
 \subsection{Results \& discussion}
 
 Remembered-set size is always changing during the execution of the program.
 Plus, as the remembered-set refinement thread may still processing cards,
-the remembered-set can be incomplete and may not remember all the corresponding card.
+the remembered-set can be incomplete and may not remember all the corresponding cards.
 Because in such situation some cards are still waiting to
 be processed and write to some remembered-sets.
 
@@ -397,16 +403,16 @@ all the corresponding cards under current heap state.
   \label{tab:remsetfootprint}
 \end{table*}
 
-As shown in Table~\ref{tab:remsetfootprint}, I measured both proposed metrics
+As shown in table~\ref{tab:remsetfootprint}, I measured both proposed metrics
 on both non-generational and generational G1 GC, with four different heap sizes.
-For each mode of G1 GC and each heap size, I report the minimum value, maximum value and mean value
+For each kind of G1 GC and each heap size, I report the minimum value, maximum value and mean value
 with 95\% confidence interval for both committed memory ratio and utilization ratio.
 
 Based on the footprint data, we can see that for generational G1 Gc,
 an average 9.6\% of the committed memory
 is allocated for building remembered-sets, with a maximum proportion of 38.2\%.
 For non-generational G1 GC the proportion of committed memory is 8.4\% on average.
-Which means remembered-sets are taking up too much memory in the heap. 
+Which means that remembered-sets are taking up too much memory in the heap. 
 Also, the memory usage (i.e. utilization) for remembered-sets is pretty low,
 only 2.3\% of the memory allocated for remembered-sets is actually used for remembering cards.
 Taking the high committed memory ratio into consideration, this means that the
@@ -417,8 +423,8 @@ waste of remembered-sets.
 \section{Summary} % 2
 \label{sec:summary}
 
-This chapter discusses the measurement methodology and results for evaluating the
-performance of the G1 family of garbage collectors. This includes the evaluation of
+This chapter discusses the measurement methodology and evaluation results of the
+GC performance of the G1 family of garbage collectors. This includes the evaluation of
 GC pause times and overhead of several mutator barriers. Also, the phenomenon revealed
 in the measurement results is carefully discussed.
 
@@ -429,7 +435,7 @@ for each GC. On the other hand, using mutator barrier barriers can largely incre
 mutator throughput reduction.
 
 Also, based on the measurement results, the generational G1 and Shenandoah GC shows some
-disappointing performance on GC pause time and mutator overheads respectively.
+disappointing performances on GC pause time and mutator overheads respectively.
 However, the time scope of this project is limited.
 In this way, there are still much optimization jobs and other works to do in the future,
 which will be discussed in Chapter~\ref{cha:conc}.

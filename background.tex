@@ -161,7 +161,7 @@ or collect objects in a specific subset of regions.
 
 As a high performance Mark-Region collector, Immix GC created by \cite{blackburn2008immix}
 has a two level heap architecture, blocks and lines. It divides the heap up into blocks and
-further split blocks into lines. During the marking phase, Immix GC marks the blocks
+further splits blocks into lines. During the marking phase, Immix GC marks the blocks
 as well and collects blocks that are not marked at the end of the marking phase.
 During each GC cycle, Immix GC performs opportunistic evacuation after the marking phase for defragmentation.
 The opportunistic evacuation only copy a very small proportion of objects to other regions which significantly
