@@ -1,7 +1,7 @@
 \chapter{Performance Evaluation}
 \label{cha:evaluation}
 
-Answering the question of the GC performance under a real-world setting,
+Answering the question of GC performance under a real-world setting,
 this chapter discusses the performance evaluation I undertook for analyzing
 the Garbage-First family of garbage collectors. This chapter will firstly describe the software and hardware platform I used for benchmarking,
 Then the detailed evaluation process and results of both pause time and
@@ -160,7 +160,7 @@ latency timer to start recording logs or dump all logs.
 \begin{table*}
   \centering
   \input table/full-gc-ratio.tex
-  \caption{Ratio of full gc}
+  \caption{Ratio of full GCs}
   \label{tab:fullgc}
 \end{table*}
 
@@ -168,7 +168,7 @@ Figure~\ref{fig:pausetime} shows the results of the GC latency time
 evaluated on all 6 garbage collectors discussed in section~\ref{cha:implementation}.
 Each subfigure shows
 the overall GC latency time for each garbage collector. Specifically, the
-minimum, 25\% percentile, medium, 75\% percentile and maximum GC latency time nanoseconds
+average, minimum, medium, 95\% percentile and maximum GC latency time nanoseconds
 were reported for each collector and each heap size.
 
 To present the results more clearly, the benchmarking results are presented as
@@ -183,32 +183,30 @@ regions. Totally 2 full heap tracings are performed during each GC cycle, which 
 pause time longer. The average pause time for this Regional GC generally ranges from $104$ to $147$
 milliseconds and increases as the heap size increases.
 
-By performing linear scan based evacuation, the linear-scan evacuation version of the Regional
+By performing linear scan based evacuation, the linear-scan evacuation version of the regino-based
 GC has to scan the memory regions in the collection set twice, one for exacuating live objects and
 one for updating references. In this way, the collector generally has longer pause times,
-which ranges from $139$ to $198$ milliseconds in average and increases as the heap size increases.
-The percentage of GC pause time increase are 33.7\%, 30.5\%, 26.9\%, 34.8\% for 4 heap sizes
-respectively, in average 31.5\%.
+which ranges from $110.1$ to $150.8$ milliseconds on average and increases as the heap size increases.
+Linear scan evacuation increases the 95 percentile GC pause time by 15.8\%.
 Although performing linear scan evacuation can largely increase the GC pause time,
 this independent phase is an important part for G1 GC and the Shenandoah GC.
 
 After performing concurrent marking in addition to the linear scan based evacuation,
 the resulting ConcRegional collector split the pause for marking into several smaller
-pauses and performs most of the marking work in concurrent without stopping the mutators.
-This makes the total pause time for a GC smaller and significantly reduces the average
-pause time by 88.5\%.
+pauses and performs most of the marking work concurrently without stopping the mutators.
+This makes the total pause time for a GC smaller and significantly reduces the 95 percentile
+GC pause time by 58.2\%.
 
 The non-generational G1 reduces the collection size to meet a pause time goal of 100\,ms.
-Based on the benchmarking results, at least 75\% of the pauses are less than the pre-defined
+Based on the benchmarking results, at least 95\% of the pauses are less than the pre-defined
 pause time goal. On the other hand, G1 uses remembered sets to update references
 instead of performing full heap tracing.
-To small heaps this has almost no benefits, even increases the average pause time by
-16.2\% on 637\,MB heaps. But for heap sizes of 39\,MB, 1414\,MB, and 1971\,MB, this
-partial heap scanning technique reduces average pause time by 8.8\%, 7.4\% and 10.7\%
-respectively. So the remembered sets based references updating has more benefits on
+For heap sizes of 637\,MB, 939\,MB, 1414\,MB, and 1971\,MB, this
+partial heap scanning technique reduces 95 percentile pause time by 30.4\%, 39.1\%, 47.7\% and 50.7\%
+respectively. This reverals that the remembered sets based references updating has more benefits on
 larger heaps. However, the full GC becomes more expensive because of the large work required
 to update all the remembered sets in the heap, which usually results in a pause time
-ranges from 0.5\,s to 1.5\,s.
+ranges from 0.5\,s to 1.0\,s.
 
 By using the generational G1 GC, young/nursery GCs are usually triggered several times
 before a major GC happens. Also, nursery GCs are fully stop-the-world and always tries
@@ -221,11 +219,11 @@ with a 95\% confidence interval reported as well.
 Based on the results, with the generational mode, G1 reduces the
 probability of falling back to full GC by 12.5\%.
 
-The Shenandoah GC performs marking, evacuation and reference updating in concurrent,
-this significantly reduces the pause time by 72.6\%, compared to the concurrent marking version
-of the regional collector. Based on the benchmarking results at least 75\% of
-the GC pauses do not exceed 10 milliseconds. However, full GCs can still result
-in pauses of around 500 to 600 milliseconds, which is longer than the concurrent-marking
+The Shenandoah GC performs marking, evacuation and reference updating concurrently,
+this significantly reduces the pause time by 84.1\%, compared to the concurrent marking version
+of the regional collector. Based on the benchmarking results at least 95\% of
+the GC pauses do not exceed 18 milliseconds. However, full GCs can still result
+in pauses of around 500 to 600 milliseconds, which are longer than the concurrent-marking
 regional collector due to the Brooks barrier involved during the evacuation phase, which performance
 will be discussed in section~\ref{sec:barrierlatency}
 
@@ -246,13 +244,13 @@ The mutator execution time is calculated as the execution time of the benchmarki
 stop-the-world GC time excluded.
 
 As discussed in chapter~\ref{cha:implementation}, I implemented the Garbage-first
-family of collectors by performing progressive improvements on a simple region-based collector.
-In this way, after performing an algorithmic improvement on a collector, we can measure the overhead of
+family of collectors by performing progressive improvements over a simple region-based collector.
+In this way, after performing an algorithmic improvement over a collector, we can measure the overhead of
 the newly involved barriers or other technologies by comparing the benchmarking results
 of the old collector and the new collector.
 
 As an output of the analysis of the overhead data, the average barrier overhead
-for each GC, each benchmark suite, each heap size and each barrier this project used is reported
+for each GC, each benchmark suite, each heap size and each barrier this project used are reported
 as well as their corresponding 95\% confidence interval.
 The overall average overhead and its 95\% confidence interval for each barrier are also reported.
 
@@ -266,8 +264,9 @@ The overall average overhead and its 95\% confidence interval for each barrier a
 \end{table*}
 
 Table~\ref{tab:satbbarrier} shows the overheads of the Snapshot-at-the-beginning barrier
-as well as their 95\% confidence interval on different heap sizes. Based on the evaluation data, the SATB barrier used for concurrent-marking
-has an overhead of 22\% on average.
+as well as their 95\% confidence interval on different heap sizes.
+Based on the evaluation data, the SATB barrier used for concurrent-marking
+has an overhead of 22.0\% on average.
 
 As a deletion barrier, during concurrent marking, the barrier will trace and mark
 all deleted nodes (i.e. the old object field when performing assignment \textjava{obj.x = y}) in the object graph.
@@ -301,12 +300,12 @@ the original design of G1 where only 1 thread is used to process the dirty card
 buffer and it only awakes for processing when the card buffer is full.
 
 Based on the measurement results, the overhead of remembered-set barriers is not low,
-which is 59.65\% on average. This is because the number of threads used for remset refinement
+which is 59.7\% on average. This is because the number of threads used for remset refinement
 is not enough and the dirty card buffer always becomes full. Under such situation,
 mutators have to take part of the responsibility to process cards in their local buffer,
 which significantly reduces its throughput.
 
-A possible fix, which is already be introduced into the OpenJDK's G1 implementation, is
+A possible fix, which has already been introduced into the OpenJDK's G1 implementation, is
 to spawn more threads for remset refinement, and refinement threads can start processing cards earlier,
 not necessarily need to wait until the global card buffer is full.
 
@@ -322,12 +321,12 @@ not necessarily need to wait until the global card buffer is full.
 Table~\ref{tab:brooksbarrier} shows the overheads of the Brooks indirection pointer barrier
 as well as their 95\% confidence interval on different heap sizes.
 On average, by using the Brooks indirection barrier, the mutator overhead
-is increased by 85.46\%.
+is increased by 85.5\%.
 
 This is a significant high overhead. The reason for causing this is the use of 
 "use barriers" which insert a barrier every time the JVM wants to access and use
 an object reference. In addition, during the concurrent evacuation phase,
-an extra barrier is used for every the object comparison operation
+an extra barrier is used for every object comparison operation
 to ensure the correct comparison between the forwarded and unforwarded pointer of the same object reference,
 which further increases the mutator overhead.
 
@@ -337,12 +336,10 @@ One possible improvement is to use "colored pointers" to ensure the CPU will alw
 the new version of the object pointer before using this pointer,
 instead of go through the indirection pointer every time the mutator access the object.
 
-\pending{A figure to explain the 'Use barrier'}
-
 \section{Remembered-Set Size} % 7
 \label{sec:remsetsize}
 
-As part of the evacuation of the G1 collector, I measured the remembered-set footprint
+As part of the evaluation of the G1 collector, I measured the remembered-set footprint
 of G1 GC.
 
 The implementation of remembered-set follows the design of the original OpenJDK
@@ -352,7 +349,7 @@ for each region. Each \textjava{PerRegionTable} remembers cards in one foreign r
 to a card in the corresponding foreign region. 
 
 Under such implementation, theoretically the space complexity for remembered-sets
-is $O(N^3)$ where $N$ is the number of regions in the heap. Because every region
+is $O(N^3)$ where $N$ is the number of regions in the heap. Because each region
 has its own remembered-set and each remembered-set consists of $N-1$ \textjava{PerRegionTable}s
 to remember cards in other $N-1$ regions. However, the practical space performance
 of such remembered-set structure has never been formally measured.
@@ -384,7 +381,8 @@ $$ \text{Utilization Ratio} = \frac{\text{Bits actually used for store cards}}{\
 
 Remembered-set size is always changing during the execution of the program.
 Plus, as the remembered-set refinement thread may still processing cards,
-the remembered-set can be incomplete due to in such situation some cards are still waiting to
+the remembered-set can be incomplete and may not remember all the corresponding card.
+Because in such situation some cards are still waiting to
 be processed and write to some remembered-sets.
 
 For this reason, I measure the remembered-set footprint at the start of each GC pause, immediately after
@@ -404,11 +402,13 @@ on both non-generational and generational G1 GC, with four different heap sizes.
 For each mode of G1 GC and each heap size, I report the minimum value, maximum value and mean value
 with 95\% confidence interval for both committed memory ratio and utilization ratio.
 
-Based on the footprint data, we can see that on average 9.0\% of the comment memory
+Based on the footprint data, we can see that for generational G1 Gc,
+an average 9.6\% of the committed memory
 is allocated for building remembered-sets, with a maximum proportion of 38.2\%.
+For non-generational G1 GC the proportion of committed memory is 8.4\% on average.
 Which means remembered-sets are taking up too much memory in the heap. 
 Also, the memory usage (i.e. utilization) for remembered-sets is pretty low,
-only 8.2\% of the memory allocated for remembered-sets is actually used for remembering cards.
+only 2.3\% of the memory allocated for remembered-sets is actually used for remembering cards.
 Taking the high committed memory ratio into consideration, this means that the
 space efficiency of the \textjava{PerRegionTable} based remembered-sets is extremely
 low. Hence a lot of optimization works should be done to further reduce the memory
@@ -431,7 +431,7 @@ mutator throughput reduction.
 Also, based on the measurement results, the generational G1 and Shenandoah GC shows some
 disappointing performance on GC pause time and mutator overheads respectively.
 However, the time scope of this project is limited.
-In this way, there are still much optimization job and other work to do in the future,
+In this way, there are still much optimization jobs and other works to do in the future,
 which will be discussed in Chapter~\ref{cha:conc}.
 
 

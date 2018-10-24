@@ -3,9 +3,9 @@
 
 Garbage collection is a hot topic in terms of modern managed programming language
 implementations. Specifically, region-based collectors like Garbage-First GC and
-C4 GC are widely used in modern Java programming languages to archive high GC performance.
+C4 GC are widely used for the modern Java Virtual Machines to archive high GC performance.
 This chapter describes the background and basic ideas of several garbage collectors,
-particularly those targeting the Java virtual machine and are implemented in OpenJDK or JikesRVM,
+particularly those targeting the Java Virtual Machines and are implemented in OpenJDK,
 as well as the differences among several garbage collection techniques.
 In addition, this chapter also performs a general discussion of the related work
 on analyzing region-based garbage collectors.
@@ -16,14 +16,14 @@ Section~\ref{sec:relatedwork} describes the related work on analyzing region-bas
 
 \section{JikesRVM and MMTk}
 
-The whole project discussed in this thesis are based on JikesRVM and all the garbage collectors
+The whole project discussed in this thesis is based on JikesRVM. All the garbage collectors
 I implemented and evaluated in this project are all implemented by using MMTk.
 In this section, I will briefly discuss the design of JikesRVM and MMTk,
 as well as some description on the general structure of them.
 
 \subsection{JikesRVM}
 
-JikesRVM is a research purpose Java virtual machine and was firstly released by \cite{alpern2005jikes}. It is a meta-circular JVM
+JikesRVM is a research Java Virtual Machine and was firstly released by IBM (\cite{alpern2005jikes}). It is a meta-circular JVM
 which is implemented in the Java programming language and is self-hosted.
 JikesRVM was designed to provide a flexible open sourced test-bed to
 experiment with virtual machine related algorithms and technologies.
@@ -31,7 +31,7 @@ experiment with virtual machine related algorithms and technologies.
 Instead of executing Java programs by directly interpreting the Java byte code,
 JikesRVM compiles them into machine code for execution.
 JikesRVM implemented two tiers of compilers: the baseline compiler and the optimizing compiler.
-The baseline compiler simply translates the Java bytecode into machine code and do no
+The baseline compiler simply translates the Java bytecode into machine code and does no
 optimizations while the optimizing compiler performs several optimizations during the
 code generation phase. I performed all benchmarking and analysis works on the
 optimized build of the JikesRVM.
@@ -47,19 +47,19 @@ allocate different type of objects. e.g. \textjava{NonMovingSpace} for non-copya
 and \textjava{SmallCodeSpace} for storing java code. After receiving an allocation request,
 MMTk will decide which space the object belongs to and allocate memory from that space.
 
-All of the G1 family of garbage collectors involved in this thesis involves two major phases:
+All of the G1 family of garbage collectors involved in this thesis have two major phases:
 the marking phase and the evacuation phase.
 Instead of using the MMTk's pre-defined \textjava{PREPARE -> SCAN ROOTS -> CLOSURE -> RELEASE}
 collection phase which only performs a single tracing on the heap, I extended this
 to perform a separate full or partial heap tracing or linear scanning phase for
 evacuation and reference updating.
 
-MMTk will check for stop-the-world or concurrent garbage collection after each
-requested space allocation.
+MMTk will check for stop-the-world or concurrent garbage collection
+within each space allocation slow path.
 This involves the invocation of methods \textjava{collectionRequired(...)}
 and \textjava{concurrentCollectionRequired(...)}.
 I made full use of these two methods,
-not only for checking whether a collection is required but also performs switching between different schedule of collection phases
+not only for checking whether a collection is required but also to perform switching between different schedules of collection phases
 for either nursery or mature collection for the G1 collector.
 
 \section{Categories of GC Algorithms}
@@ -71,8 +71,9 @@ as their pros and cons.
 \subsection{Reference counting}
 
 Reference counting is a widely used garbage collection technique which tracks the
-count of references for each heap-allocated object (\cite{detlefs2002lock}).
-The reference count for an object is increased when a new variable references to
+count of references for each heap-allocated object. This algorithm was firstly
+introduced by \cite{collins1960method}.
+The reference count for an object is increased when an new variable references to
 the object and decreased when a reference
 to the object is deleted or goes out of its declaring scope. The reference count for
 each object is initialized to one when the object is created, which means there is only one
@@ -86,31 +87,36 @@ For each object reference modification \textjava{obj.x = y}, the reference count
 the old object reference is decreased and the reference count of the new object reference
 is increased by $1$. If the old object reference has no owner, then its memory cell gets swept immediately.
 
-This collection algorithm is highly efficient and the workload for sweeping objects are
-almost evenly distributed which makes the mutator pause time for reference counting
-to be extremely short.
+This collection algorithm has two variants. The naive reference counting algorithm
+performs reference counting manipulations without pausing all mutators and the workload for collecting objects is
+almost evenly distributed. However, manipulating reference counts all the time significantly increases the
+mutator overhead. Another variant is the deferred reference counting, which performs object collection during some small pauses instead of taking up
+the mutator time.
+Deferred reference counting collectors generally have larger pause time than naive reference counting collectors
+but have a much better mutator performance.
 
-However, one major disadvantage of the reference counting GC is that it can hardly
-handle cyclic references (\cite{lins1992cyclic}) where some object \textjava{A} references the other object
-\textjava{B} and \textjava{B} also references \textjava{A}. In such case the reference
-count is at least $1$ for both \textjava{A} and \textjava{B}, even if there are no
-objects referencing to them.
+% However, one major disadvantage of the reference counting GC is that it can hardly
+% handle cyclic references (\cite{lins1992cyclic}) where some object \textjava{A} references the other object
+% \textjava{B} and \textjava{B} also references \textjava{A}. In such case the reference
+% count is at least $1$ for both \textjava{A} and \textjava{B}, even if there are no
+% objects referencing to them.
 
 \subsection{Mark \& sweep GC}
 
+Mark and Sweep GC was firstly invented by \cite{mccarthy1960recursive}.
 Mark and Sweep GC is a type of tracing GC which uses the object graph to assist with garbage collection.
-The algorithm considers all the objects that are unreachable in the program as garbage (\cite{endo1997scalable}).
+The algorithm considers all the objects that are unreachable in the program as garbage.
 In this way, Mark and Sweep GC has the ability to collect cyclic referenced garbages,
 as long as they are unreachable from other live objects.
 
 
 When allocating objects or requesting memory pages from some memory resource,
-the mutators dose no extra work but only checks whether the memory is full.
+the mutator does no extra work but only checks whether the memory is full.
 If there is no free space for allocation, the execution of all the mutators will be
 paused and the Mark and Sweep GC is triggered.
 
 The Mark and Sweep GC requires an extra metadata byte in the object header for marking.
-During each GC cycle, the Mark and Sweep GC firstly scans and marks all the static object,
+During each GC cycle, the Mark and Sweep GC first scans and marks all of the static objects,
 global objects and stack variables as a set of "root objects".
 Then the collector starting from the root objects and recursively walks over the
 object graph to mark all the remaining objects. At the end of the marking phase,
@@ -131,41 +137,56 @@ is larger than the requested chunk size.
 \subsection{Copying GC}
 
 Copying GC is a class of garbage collectors that aims to reduce heap fragmentation
-by performing heap compaction, which moves objects in the heap together.
+by performing heap evacuation, which moves objects in the heap together.
 
-As one of the most simple copying GC, the SemiSpace GC divides the whole heap
+As one of the most simple copying GC, the SemiSpace GC created by \cite{fenichel1969lisp} divides the whole heap
 into two spaces: the from-space and the to-space. All objects allocation are done
-within the from-space. When the from-space is exhausted, a GC cycle is triggered.
-The collector will start from all root objects and recursively walks over the
+from the to-space. When the to-space is exhausted, a GC cycle is triggered.
+The two spaces are flipped at the start of GC.
+The collector starts from all root objects and recursively walks over the
 object graph to copy all reachable objects to the to-space. Then the to-space becomes
 the new from-space for further allocation. In this way, the SemiSpace GC ensures all
 live objects are copied to the to-space and all non-reachable objects (i.e. dead objects)
 are not forwarded and are swept at the end of the GC cycle.
 
-Copying GCs has the ability to reduce heap fragmentation but can cause longer
-pause time for each GC cycle. Especially for some GCs which has additional evacuation
+Copying GCs have the ability to reduce heap fragmentation but can cause longer
+GC pause time. Especially for some GCs which have additional evacuation
 phase at the end of a marking phase, e.g. the MarkCompact GC.
+
+\section{Mark-Region Collectors}
+
+Instead of evacuating all the live object during each GC like the SemiSpace GC,
+Mark-Region collectors divide the heap up into small regions, and only evacuate
+or collect objects in a specific subset of regions.
+
+As a high performance Mark-Region collector, Immix GC created by \cite{blackburn2008immix}
+has a two level heap architecture, blocks and lines. It divides the heap up into blocks and
+further split blocks into lines. During the marking phase, Immix GC marks the blocks
+as well and collects blocks that are not marked at the end of the marking phase.
+During each GC cycle, Immix GC performs opportunistic evacuation after the marking phase for defragmentation.
+The opportunistic evacuation only copy a very small proportion of objects to other regions which significantly
+reduces the GC pause time due to object evacuation.
 
 \section{Garbage-First Family of Garbage Collectors}
 \label{sec:g1collectors}
 
-This section will give a brief introduction to the three most popular Garbage-first
+This section will give a brief introduction to the three most popular collectors from the Garbage-first
 family of garbage collectors. For each collector, the basic algorithm
 and the past and current status will be discussed.
 
 \subsection{Garbage-First GC}
 
-Garbage-First GC is a copying collector which was initially released in Oracle JDK 6
+Garbage-First GC created by \cite{detlefs2004garbage} is a copying collector which was initially released in Oracle JDK 6
 and was fully supported in Oracle JDK 7. G1 was designed as a server-style collector
 which targeting machines with multi-processors and large memories. 
 
-G1 GC divides the whole heap up into some fixed sized regions. 
+G1 GC divides the whole heap up into fixed sized regions. 
 As a copying collector, G1 GC tries to reduce the pause time for evacuating objects
 by performing evacuation on a subset of regions (called the collection set) instead of
 all allocated regions.
 
-The collection cycle of the Garbage-First GC starts with a concurrent marking phase
-which the collector threads marks all the objects in the heap, just like the Mark \&
+The collection cycle of the G1 GC starts with a concurrent marking phase.
+During which the collector threads marks all the objects in the heap, just like the Mark \&
 Sweep GC, but without pausing the mutators.
 After the marking phase, the G1 collector selects the collection set which contains
 the regions with the smallest ratio of live objects.
@@ -180,53 +201,57 @@ By performing partial heap evacuation, the G1 GC generally has lower pause time
 than other copying GCs, especially on machines with large heaps (\cite{detlefs2004garbage}).
 By adjusting the size of the collection set before evacuation, G1 has the ability
 to control the pause time to meet some user-defined soft pause time goal.
-However, one main drawback of G1 is that it is not suitable for small heaps,
-and the implementation of remembered sets can be inefficient.
+However, one main drawback of G1 is that the implementation of remembered sets can be inefficient.
 
 \subsection{Shenandoah GC}
 
-Shenandoah GC is concurrently an experimental collector for OpenJDK.
+Shenandoah GC is an experimental collector for OpenJDK.
 Shenandoah GC also divides heap up into regions and performs concurrent marking,
 similar to the Garbage-first GC.
 
 Shenandoah GC tries to further reduce the GC latency by performing concurrent
-compaction. The concurrent marking phase that Shenandoah GC has is similar to
+evacuation. The concurrent marking phase that Shenandoah GC has is similar to
 the G1's concurrent marking phase. However, Shenandoah GC does not have a generational
 mode and does not perform partial evacuation to reduce pause times.
 Instead, the Shenandoah GC performs the evacuation phase concurrently to collect
 all possible regions, without pausing mutators.
 
-By performing concurrent marking and compaction, Shenandoah GC does most of the
-heap scanning work in concurrent. In this way, the pause time caused by garbage collection
+By performing concurrent marking and evacuation, Shenandoah GC does most of the
+heap scanning work concurrently. In this way, the pause time caused by garbage collection
 is extremely small and is not proportional to the heap size.
 However, Shenandoah GC has to insert some mutator barriers into the Java program,
 before every object reference read and write. So the mutator overhead caused by
-these barrier is much greater than other GCs.
+these barriers is much more larger than other GCs.
 
 \subsection{C4 GC}
 
 C4 GC is a pauseless GC algorithm created by \cite{tene2011c4} and is the default
 collector of Azul's Zing JVM. C4 is a region-based generational collector which
-performs mostly concurrent marking and compaction during nursery and mature GCs.
-A mutator barrier called the Brooks indirection barrier is introduced to support
-concurrent heap compaction without pausing the mutators. According to the \cite{tene2011c4},
-by performing most of the GC work in concurrent, C4 GC has the ability to reduce the
+performs mostly concurrent marking and evacuation during nursery and mature GCs.
+According to the \cite{tene2011c4},
+by performing most of the GC work concurrently, C4 GC has the ability to reduce the
 mutator response time down to around 10\,ms when targeting 100\,GB heaps.
 
-\subsection{ZGC}
-
-ZGC is a new garbage collector introduced by \cite{liden_karlsson_2018} and
-is very similar to the Shenandoah GC and is also currently under experimental status.
-ZGC redesigns the mutator barriers of the Shenandoah GC to largely reduces the barrier
-overhead.
-ZGC assigns a color for each pointer and stores this metadata into the
+C4 GC is similar to Shenandoah GC, where the difference is that C4 is generational
+and uses an enhanced version of Shenandoah GC's mutator barrier.
+In detail, assigns a color for each pointer and stores this metadata into the
 unused bits in the 64bit pointers.
 Instead of inserting barriers on every object reference read and write,
 ZGC only uses a "load barrier" which is only inserted before the mutator loads an
 object reference from the heap. The barrier is responsible for both object concurrent marking
 and evacuation, by checking the "color" metadata in the pointer.
-In this way, ZGC remarkably reduces the throughput reduction caused by the mutator
+In this way, C4 significantly reduces the throughput reduction caused by the mutator
 barriers.
+
+\subsection{ZGC}
+
+ZGC is a new garbage collector introduced by \cite{liden_karlsson_2018} and
+is very similar to the Shenandoah GC and C4 GC. ZGC was developed as an experimental
+pauseless collector for OpenJDK.
+ZGC is very similar to C4 GC. Both of them use "colored pointers" as well as related
+mutator barriers to perform concurrent marking and evacuation.
+The only difference from C4 GC is that ZGC is still under experimental status and
+currently does not supports generational mode.
 
 \section{Related Work}
 \label{sec:relatedwork}
@@ -239,18 +264,17 @@ All of these three major collectors are implemented in OpenJDK.
 
 \cite{detlefs2004garbage} designed and evaluated the basic algorithm of the Garbage-First collector,
 including the original design of the pure(non-generational) and generational version
-of G1 GC. Based on this, G1 GC was first implemented and released as an alternative
+of G1 GC. Based on this paper, G1 GC was first implemented and released as an alternative
 experimental GC for OpenJDK 7. \cite{flood2016shenandoah} designed the basic algorithm
-of the Shenandoah garbage collector.
-Based on this, Shenandoah GC was first implemented as an alternative experimental GC for OpenJDK 8.
+of the Shenandoah garbage collector and the first implementation of Shenandoah GC was done as an alternative experimental GC for OpenJDK 8.
 ZGC is a new garbage collector designed and implemented for OpenJDK
 and has justly released the first experimental version in OpenJDK 11.
 
 \citep{detlefs2004garbage,flood2016shenandoah} evaluated the performance of G1 GC
 and Shenandoah GC respectively, including the pause time and mutator barriers overhead.
-However, their evacuation phases use different benchmarking program and are done within
-different hardward platform. In addition, the implementations between these collectors
-vary too much, even for parts that share the common ideas, which makes it hard to
+However, their evaluations use different benchmarking programs and are done within
+different hardware platforms. In addition, the implementations between these collectors
+vary significantly, even for parts that share similar ideas, which makes it hard to
 compare the benchmarking results between G1 GC and Shenandoah GC.
 
 \subsection{Evaluation of region-based collectors}
@@ -261,19 +285,19 @@ with a conservative reference-counting collector to manage the memory. Then they
 measured the performance of both allocation and collection over such region-based heap,
 on a collection of realistic benchmarks. They found that the regional structure has
 advantages for memory allocation and collection, with a competitive performance
-compared to malloc/free in C programs and has low overhead when using a garbage collector.
+compared to \textjava{malloc}/\textjava{free} in C programs and has low overhead when using a garbage collector.
 However, they only evaluated the reference counting collector, which is not a
 mark and copy collector that this thesis is trying to evacuate. Also, the
 language they were using is a safe C dialect, which is different from the Java language
 in many aspects.
 
-\cite{qian2002adaptive} implemented a region-based allocator as well as a simple copying
-collector on JikesRVM. Based on the evaluation results on SPECjvm98 benchmarks,
-they found that the overhead of allocating and releasing memory pages
-and the cost of related write barriers is quite low.
-However, they do not focus too much on evaluating the overhead on a wide range of
-additional memory management techniques built upon the region-based memory structure,
-such as concurrent marking or evacuation.
+% \cite{qian2002adaptive} implemented a region-based allocator as well as a simple copying
+% collector on JikesRVM. Based on the evaluation results on SPECjvm98 benchmarks,
+% they found that the overhead of allocating and releasing memory pages
+% and the cost of related write barriers is quite low.
+% However, they do not focus too much on evaluating the overhead on a wide range of
+% additional memory management techniques built upon the region-based memory structure,
+% such as concurrent marking or evacuation.
 
 \subsection{Evaluation of barrier overheads}
 
@@ -284,17 +308,17 @@ They found that write barriers generally have overheads of 5.4\% while write
 barriers have average overheads of 0.9\%. However, these barriers evaluations did not
 include the evaluations of the Brooks indirection barriers. In addition, this paper
 measured the behavior of card marking barriers but did not measure the overhead of
-remembered-set barriers which is used alongside with the card marking barrier in
+the remembered-set barrier which is optionally used alongside with the card marking barrier in
 the Garbage-first GC.
 
 \section{Summary}
 
 In this section, I introduced the background and basic ideas of several garbage collectors,
-as well as the design of the widely used region-based garbage collectors.
+as well as the design of the widely used copying region-based garbage collectors.
 I also performed a general discussion of the related work on analyzing region-based garbage collectors.
 
-As discussed in this chapter, most garbage collectors generally have the similar design, especially for those
-region-based collectors which share the common design of the heap structure and
+Most mark copy garbage collectors generally have the similar design, especially for those
+Garbage-first related region-based collectors which share the common design of the heap structure and
 marking algorithm.
 This leads to an open question: To what extent do these region-based collectors
 relate to each other? To answer this question, in the next chapter I will explore the

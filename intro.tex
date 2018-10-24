@@ -2,59 +2,58 @@
 \label{cha:intro}
 
 This thesis explores the Garbage-First family of garbage collectors, including
-the underlying relationship among them, the improvements each GC does and the performance
-contribution by each algorithmic component.
+the underlying relationship among them, the improvements each GC makes and the performance
+contribution of each algorithmic component.
 My thesis is that different members in Garbage-First family of collectors are strongly related
-and each collector is actually an improvement to other existing collectors.
-These improvements increase the GC performance in some aspect but also cause several extra drawbacks.
+and that each collector is an improvement over other existing collectors.
+Each improvement increases GC performance in some respect but also has drawbacks.
 
 \section{Project Statement}
 
 As the memory size of modern server machines becomes larger, the latency time of
 garbage collectors for managed programming languages generally becomes longer.
-In this way, the designing of low-latency garbage collectors has become
-a hot topic today. This involves reducing the latency of collectors and
+In this way, the design of low-latency garbage collectors has become
+a hot topic today. The aim of these collectors includes reducing the latency of collectors and
 performing heap compaction or evacuation to avoid heap fragmentation.
 
 % Current three collectors
 Among all the existing low-latency garbage collectors, the category of region-based
-collectors is widely explored and used in modern industry.
+collectors is widely explored and used in industry.
 Region-based collectors are designed to reach high GC
-performance (especially GC pause times) by managing the heap as a set of memory regions.
-As four well-known region-based garbage collectors,
+performance (especially GC pause time) by managing the heap as a set of memory regions.
+Four well-known region-based garbage collectors,
 Garbage-first GC, Shenandoah GC, C4 GC and ZGC created by
 \citep{detlefs2004garbage,flood2016shenandoah,tene2011c4,liden_karlsson_2018} respectively
-are high performance region-based garbage collectors implemented for Java virtual machines
-to reach short GC pause times and high program throughput.
+are high performance region-based garbage collectors implemented for Java Virtual Machines
+to achieve a short GC pause time and a high program throughput.
 
 % Problem
-The design and implementation of such region-based collectors have been well
-explored nowadays, but unfortunately, their underlying relationship still remains unidentified and unexplored.
+The design and implementation of such region-based collectors has been well
+explored, but unfortunately, their underlying relationship remains unidentified and unexplored.
 Although these collectors share a lot of basic algorithms and structures,
-the original papers or other publications of these collectors only regard them as
-newly created and stand-alone collectors instead of improvements to the existing collectors.
+the original papers and other publications describing these collectors only regard them as
+newly created and stand-alone collectors instead of improvements over the existing collectors.
 Such ignorance of the potential relationships prevents GC designers to have a clear
 overview of the algorithms supporting these collectors.
 
-Also, the lack of explorations on these relationships can make the GC performance evaluation
-and analysis among these collectors to be impossible.
-The existing G1 family of collectors, including
-G1 GC, Shenandoah GC, C4 GC, and ZGC are invented by different groups or companies (Sun, Red Hat, Azul, and Oracle respectively).
-The implementations and optimizations on these collectors are varied.
-This makes the original implementations of the G1 family of collectors do not reflect
+The lack of explorations of these relationships makes GC performance evaluation
+and analysis among these collectors difficult.
+The collectors are invented by different groups.
+The implementations and optimizations exployed by these collectors are varied.
+This means that the original implementations of the family of collectors do not reflect
 their underlying structural relationships.
-The implementation differences among these collectors make them become impossible
-to be carefully measured for the GC performance impact of each structural component.
-This means no one has ever truly understand the GC performance contribution of each
+% The implementation differences among these collectors make them impossible
+% to be properly measured for the GC performance impact of each structural component.
+This implementation differences make it hard to understood GC performance contribution of each
 GC algorithm involved in these collectors.
 On the one hand, such lack of explorations on these relationships and the lack of
 performance analysis and comparisons may cause some unexpected performance issue to these collectors.
-As an example, according to \cite{briandemsky2015speculative}, sometimes GC time of region-based collectors
+As an example, according to \cite{nguyen2015speculative}, sometimes GC time of region-based collectors
 can take up to 50\% of the total execution time of Big Data systems.
 On the other hand, this can also mislead the future design of related collectors.
 
-So here come to the problem which this thesis is aiming to solve: What are the relationships
-among the G1 family of collectors and in which way will they contribute to the GC performance?
+So here comes the problem which this thesis is aiming to solve: What are the relationships
+among the G1 family of collectors and in which way do they contribute to GC performance?
 
 % Challenge
 % The challenge is: \pending{XXX}?
@@ -88,14 +87,14 @@ among the G1 family of collectors and in which way will they contribute to the G
 
 \section{Contribution}
 
-I insist that the G1 family of collectors are strongly related to each other,
-although the original papers of these collectors present them as a stand-alone collector
+I show that this family of collectors be strongly related to each other,
+although the original papers of these collectors present them each as a stand-alone collector
 instead of an improved collector based on other existing GC algorithms. The lack of
-explorations to such structural relationships makes it hard to carefully analyze
+explorations of such structural relationships makes it hard to carefully analyze
 the performance contribution caused by each part of the GC algorithm, hence prevents
-GC designers to truly understand the pros and cons of each GC algorithms.
+GC designers from truly understanding the pros and cons of each GC algorithm.
 
-This thesis makes a deep exploration of the underlying relationship among the
+This thesis makes an exploration of the underlying relationship among the
 G1 family of garbage collectors. The algorithmic relationships are summarised
 as a series of progressive improvements, which generally reflects the evolutionary
 history of the G1 family of collectors.
@@ -104,35 +103,36 @@ As another major component of the exploration, I implement the collectors by fol
 the steps of the progressive improvements, starting from a most simple form of the
 region-based collector to the most complex collector, e.g. Garbage-First GC and
 Shenandoah GC, to reveal the hierarchy of the G1 family of collectors.
+I did not implement C4 GC and ZGC due to some platform limitations, which will be
+discussed in Chapter~\ref{cha:conc}.
 GC performance of these implemented collectors is also evaluated and discussed.
 
 The general steps involved in this thesis for exploring these collectors include:
 
 \begin{quote}
   \textbf{Discover the relationships}
-    of the G1 family of garbage collectors includes understand the basic algorithms
-    of these collectors, infer the underlying relationships among them and reconsider them as
-    a series of algorithm improvements instead of individual collectors.
+    of the G1 family of garbage collectors includeing understanding the basic algorithms
+    of these collectors, infering the underlying relationships among them and reconsidering them as
+    a series of algorithmic improvements instead of individual isolated collectors.
 
   \textbf{Implement a simple mark-region collector}
-    by starting from an existing SemiSpace GC in MMTk and replace the two copy-spaces
+    by starting from an existing SemiSpace GC in MMTk and replacing the two copy-spaces
     with a region-space which divides the memory up into multiple regions.
-    Then add an extra marking phase before the evacuation phase.
+    Then I added an extra marking phase before the evacuation phase.
 
   \textbf{Perform a series of improvements}
     by starting from the simple mark-region collector and progressively perform
     improvements including linear-scan evacuation, concurrent marking, remembered sets
-    and concurrent evacuation. This step produces a few improved version of the
+    and concurrent evacuation. This step produces improved versions of the
     mark-region collectors, the Garbage-First GC and the Shenandoah GC.
 
-  \textbf{Measure the GC performance}
-    includes measuring the GC pause times of all implemented collectors, the 
+  \textbf{Measure GC performance}
+    includeing measuring the GC pause times of all implemented collectors, the 
     barrier overheads and the remembered set size. These measurements reflect the
-    performance gain caused by each algorithmic improvement.
+    performance gain due to each algorithmic improvement.
 
-  \textbf{Explain and explore the results}
-    of the previously generated measurement results, which leads to a reconsideration
-    of the pros and cons of each G1 related GC algorithms in depth.
+  \textbf{Explain and explore the results} which leads to a reconsideration
+    of the pros and cons of each G1-related GC algorithm in depth.
 \end{quote}
 
 A total of six different Garbage-First family of garbage collectors were implemented to reveal
@@ -143,18 +143,18 @@ In order to make a detailed and careful analysis of these collectors and
 be able to compare these collectors at an algorithmic level, the implementations
 are as close as possible to the design of their original papers.
 
-I measure the GC pause times for each implemented collectors, as well as the mutator
+I measure the GC pause times for each implemented collector, as well as the mutator
 overhead of the mutator barriers involved in these collectors, including
 snapshot-at-the-beginning (SATB) barrier, remembered-set barrier, and the Brooks barrier.
-I found that concurrent marking contributes to a decrease of the average GC pause time by 88.5\%
-where linear scanning evacuation increases the average GC pause time by 31.5\%.
-However, the use of remembered-sets can reduce the GC pause time up to 10.7\%,
-and concurrent evacuation can also reduce the GC pause time up to 72.6\%
+I found that concurrent marking contributes to a decrease of the 95 percentile GC pause time by 58.2\%
+where linear scanning evacuation increases the GC pause time by 15.8\%.
+However, the use of remembered-sets can reduce the GC pause time by 41.9\%,
+and concurrent evacuation can also reduce the GC pause time up to 84.1\%
 As the result of barrier latency analysis, I found that SATB barriers can
 increase the mutator overhead by 22.0\% where Brooks barriers
 increase the mutator overhead of Shenandoah GC by 85.5\%.
 
-All work was done in JikRVM, a research purpose Java virtual machine and MMTk,
+All works were done in JikesRVM, a research purpose Java Virtual Machine and MMTk,
 a memory management took written in Java (\cite{blackburn2004oil}).
 
 \section{Thesis Outline}

@@ -8,7 +8,7 @@ among them, especially the different techniques used by these collectors to impr
 Hence their resulting GC performance can vary.
 
 As a major contribution of this thesis, this chapter explores the underlying relationships
-among these collectors which the original designers of these GCs was not aware of.
+among these collectors which the original designers of these GCs were not aware of.
 Based on these discovered relationships, this chapter also discusses the implementations
 of several region-based GCs, as we called "The Garbage-First family of garbage collectors",
 as a series of improvements inferred by the discovered relationships.
@@ -17,7 +17,7 @@ Section~\ref{sec:generaldesign} describes the general and high-level design of t
 G1 family of garbage collectors and explores their underlying relationships.
 Section~\ref{sec:simpleregiongc} describes the implementation details of a simple region-based GC.
 Section~\ref{sec:linearscangc} describes the implementation of the simple region-based GC that uses linear scanning for evacuation.
-Section~\ref{sec:concmarkgc} describes the implementation of the improvement to the region-based GC that performs object marking concurrently.
+Section~\ref{sec:concmarkgc} describes the implementation of the improvement over the region-based GC that performs object marking concurrently.
 Section~\ref{sec:g1gc} describes the details of implementing the Garbage-First GC
 Section~\ref{sec:shenandoahgc} describes the details of implementing the Shenandoah GC
 
@@ -34,8 +34,8 @@ and implement them to reflect such relationships.
 
 The four well-known region-based garbage collectors, G1 GC, Shenandoah GC, C4 GC, and
 ZGC share plenty of common design and algorithms. The major similarity of these collectors
-is that they are pauseless collectors originally designed for modern Java virtual
-machines and attempt to improve GC performance when targeting large heaps.
+is that they are pauseless collectors originally designed for modern Java Virtual
+Machines and attempt to improve GC performance when targeting large heaps.
 
 The similar design goal leads to the similar general structure of these collectors.
 As described in publications by \cite{detlefs2004garbage}, \cite{flood2016shenandoah},
@@ -53,9 +53,9 @@ As described in publications by \cite{detlefs2004garbage}, \cite{flood2016shenan
   \textbf{Concurrent marking}.
     At the beginning of each GC cycle, all of the collectors use the Snapshot-at-the-beginning algorithm
     (firstly introduced by \cite{yuasa1990real}) to mark all live objects in the heap
-    in concurrent without stopping the mutators.
+    concurrently without stopping the mutators.
 
-  \textbf{Perform heap compaction}
+  \textbf{Perform heap defragmentation}
     after the marking phase copy live objects in the collection set to other
     regions before releases the memory in the collection set.
 \end{quote}
@@ -67,23 +67,23 @@ In terms of different collectors,
 \begin{quote}
   Garbage-First GC uses a data structure called "remembered set" to record the
   cross region pointers during the execution of the Java program.
-  Later during compaction phase, instead of walk over the whole object graph to update
+  Later during evacuation phase, instead of walk over the whole object graph to update
   references as what other collectors (e.g. SemiSpace GC) did, G1 only needs to scan the
   remembered sets to update cross region pointers pointing to the collection set.
   Also, G1 has a generational mode which eagerly collects newly allocated objects
   during nursery GCs.
 
-  Shenandoah GC tries to perform the compaction phase in concurrent, by using the
-  Brooks indirection barrier (which was firstly introduced by \cite{brooks1984trading}).
-  Although Shenandoah GC still uses performs heap tracing during compaction phase,
+  Shenandoah GC performs the evacuation phase concurrently, by using the
+  Brooks indirection barrier (which was first introduced by \cite{brooks1984trading}).
+  Although Shenandoah GC still uses performs heap tracing during evacuation phase,
   the GC pause time is extremely low and is not proportional to the heap size.
 
-  ZGC can be simply regarded as an improvement to the Shenandoah GC with high mutator performance.
+  ZGC can be simply regarded as an improvement over the Shenandoah GC with high mutator performance.
   ZGC uses the "colored pointers"
   as well as a highly optimized read barrier to assist with the Brooks indirection barrier
   to further increase the mutator throughput.
 
-  C4 GC is very similar to ZGC and also performs concurrent compaction during each
+  C4 GC is very similar to ZGC and also performs concurrent evacuation during each
   GC. The major difference to ZGC is that C4 GC is generational which is expected
   to have higher performance than ZGC.
 \end{quote}
@@ -91,7 +91,7 @@ In terms of different collectors,
 In general, these four collectors are strongly related to each other in terms of
 the design and algorithm structure. In addition, each collector performs their
 own improvements to improve GC performance. In this way, at the algorithmic level,
-these collectors tend to be a set of improvements to the naïve region-based collector.
+these collectors tend to be a set of improvements over the naive region-based collector.
 Hence they are more likely to form as a family of collectors
 instead of individual and unrelated collectors.
 
@@ -103,7 +103,7 @@ by following different steps against the original implementation.
 
 I started from implementing a simple region-based GC which divides the whole Java heap
 up into fix sized regions and performs fully stop-the-world but parallel object marking
-and full-heap tracing based heap compaction/evacuation during each GC.
+and full-heap tracing based heap evacuation during each GC.
 Then I made progressive improvements based on this collector to further implement some G1 family of garbage collectors.
 
 Since both Garbage-First and Shenandoah GC use heap linear scanning for evacuation,
@@ -132,7 +132,7 @@ algorithmic-level analysis on these garbage collectors.
 This simple region-based GC is provided as a baseline for future implementation of the G1 family of collectors.
 It contains most basic structures of the Garbage-First family of garbage collectors such as
 region-based heap space and bump pointer allocation algorithm. By making progressive improvements
-on this region-based GC, I keep the implementation differences among the
+over this region-based GC, I keep the implementation differences among the
 Garbage-First family of garbage collectors to a minimum.
 
 \subsection{Heap structure and allocation policy}
@@ -154,7 +154,7 @@ which is shown in figure~\ref{fig:allocator:slow} that moves the bump pointer to
 
 MMTk reserves some extra pages for each region to record metadata.
 After the allocator filled a region, it records the end address of the region for 
-region linear scanning which is later used in some collectors. Also, an off-heap bitmap is
+region linear scanning which is lately used in some collectors. Also, an off-heap bitmap is
 maintained in the metadata pages of the region to record the liveness data of objects allocated
 in this region.
 
@@ -189,8 +189,8 @@ The marking algorithm considers the heap as a graph of objects and follows the i
 which firstly scans and marks all the stack and global root objects and pushes them into an object queue.
 Then the collector threads keep popping objects from the object queue, collects all its
 object reference fields (which are child nodes of the current object node in the object graph), scan these
-fields and if they are not marked previously, push them back into the object queue.
-The marking process is done when the global object queue is drained, which means all object that is reachable
+fields and if they were not marked previously, push them back into the object queue.
+The marking process is done when the global object queue is drained, which means all objects that are reachable
 from the root objects are marked after the marking phase.
 
 Instead of using the GC byte in the object header for marking which is widely used in other GCs in MMTk,
@@ -220,7 +220,7 @@ a collection set of regions.
 The collection set selection phase firstly takes a list of all allocated regions,
 sort them in ascending order by the live bytes of the region.
 Then the collector selects the regions with lowest live bytes.
-Also, the collector should make sure the total live bytes in the collection set is not
+Also, the collector should make sure the total count of live bytes in the collection set is not
 greater than the free memory size of the heap.
 
 At the end of the collection set selection phase, the collector marks all regions
@@ -262,7 +262,7 @@ I used an additional full heap tracing for verification. The full heap tracing i
 similar to the marking trace and is fully stop the world to ensure the object graph is never changed
 during the verification process.
 When visiting each object node during verification, the collector checks all its object reference fields
-and ensure they are either null or are pointing to the valid Java objects.
+and ensure they are either null or pointing to the valid Java objects.
 The collector also checks no object node should be located in the from space (i.e. the collection set).
 
 This full heap tracing verification process is optional and can be switched on and off for
@@ -298,11 +298,11 @@ phases, e.g. concurrent marking, remembered-set based evacuation or concurrent e
 \section{Concurrent Marking}
 \label{sec:concmarkgc}
 
-Another improvement I did is to make the marking phase executes mostly in concurrent to reduce the
+Another improvement I did is to make the marking phase executes mostly concurrently to reduce the
 mutator latency caused by the stop-the-world object marking.
-This concurrent-marking region-based GC is an improvement based on the previous linear-scan region-based GC.
+This concurrent-marking region-based GC is an improvement over the previous linear-scan region-based GC.
 
-The Snapshot at the Beginning (SATB) algorithm \cite{yuasa1990real} is introduced to
+The Snapshot at the Beginning (SATB) algorithm was introduced by \cite{yuasa1990real} to
 complete most of the marking work concurrently without pausing mutators. The SATB algorithm assumes an object is live if it was reachable (from the roots)
 at the start of the concurrent marking or if it was created during the concurrent marking \cite{yuasa1990real}.
 
@@ -316,14 +316,14 @@ collector then pauses all the mutators and switches to a stop-the-world marking 
 to continue the marking process.
 
 After the stop-the-world initial mark pause, the collector resumes the execution of all mutators and
-initiates the concurrent marking phase, which marks all the remaining objects in concurrent
+initiates the concurrent marking phase, which marks all the remaining objects concurrently
 while the mutators are still in execution.
 
 \subsection{SATB write barriers}
 
 To maintain the invariant of "An object is live if it was live at the start of marking",
-the mutators in this concurrent-marking GC implemented a "deletion barrier", which are code
-fragments inserted into the java program, before every object field write, object field compare \& swap
+the mutators in this concurrent-marking GC implemented a "deletion barrier", which is a piece of code
+fragment inserted into the java program, before every object field write, object field compare \& swap
 and object array copy in the program. Figure~\ref{fig:satbbarrier} shows the object reference write barrier that is used
 to track object graph modifications during the concurrent marking.
 When an object reference field modification happens, since the old child object reference
@@ -333,7 +333,7 @@ Same as the stop-the-world marking process, the concurrent marking phase finishe
 the global object queue is drained.
 
 During the final mark pause, the collector releases and resets the marking buffer that
-is used for concurrent marking. Then it starts the collection set selection phase, just like the
+was used for concurrent marking. Then it starts the collection set selection phase, just like the
 simple region-based GC.
 \\\\
 
@@ -349,13 +349,13 @@ detailed performance impact of the Garbage-First and Shenandoah GC due to the SA
   \begin{subfigure}[a]{\textwidth}
     \lstinputlisting[linewidth=\textwidth,breaklines=true]{code/satb-barrier.java}
     \caption{The SATB Barrier which enqueues objects into a SATB buffer}
-    \label{fig:c:hello}
+    \label{fig:satb:enqueue}
   \end{subfigure}
 
   \begin{subfigure}[b]{\textwidth}
     \lstinputlisting[linewidth=\textwidth,breaklines=true]{code/satb-object-field-write.java}
     \caption{SATB mutator barriers}
-    \label{fig:c:hello}
+    \label{fig:satb:ofw}
   \end{subfigure}
 
   \caption{Snapshot at the Beginning Barriers}
@@ -383,7 +383,7 @@ And the last phase is the cleanup phase which frees the regions in the collectio
 
 The construction of the Garbage-First GC on JikesRVM is based on the concurrent-marking
 region-based GC.
-It involves three improvements to the concurrent region-based collector discussed in Section~\label{sec:concmarkgc}:
+It involves three improvements over the concurrent region-based collector discussed in Section~\ref{sec:concmarkgc}:
 remembered-set based pointer updating, pause time predictor and generational collection.
 The remembered-set based pointer updating largely reduces the pause time caused by
 the reference updating phase by avoiding full heap tracing when reference updating,
@@ -411,7 +411,7 @@ region that the current remembered-set corresponds to. Each bit in the bitmap co
   \label{fig:remset}
 \end{figure*}
 
-The remembered-sets is maintained by the collector and is always contains cards in other regions that have pointers to this region.
+The remembered-sets are maintained by the collector and are always contain cards in other regions that have pointers to this region.
 The remembered-sets should be updated at every object field modification bu mutators and after
 the evacuation of each object in the collection set to meet the correctness of the remembered-sets.
 
@@ -470,17 +470,17 @@ set and copy live objects to the to-regions.
 
 \subsection{Remembered set based pointer updating}
 
-By performing concurrent remset refinements, the structure of all remembered-sets is always maintained correctly.
+By performing concurrent remset refinements, G1 GC can ensure that the structure of all remembered-sets is always maintained correctly.
 Which enables the partial evacuation based on remembered sets without a full heap tracing.
 
 After the collection set selection phase, the collector firstly performs a linear
 scan over regions in the collection set to evacuate all love objects in the collection set.
 Then the collector starts a references updating phase which considers
-the root set as all root objects plus objects in the cards that is recorded in the remembered-sets.
+the root set as all root objects plus objects in the cards that are recorded in the remembered-sets.
 During references updating phase, instead of performing a full heap tracing to fix and
 update all the references in the heap, the collector only scans root objects and
 cards in remembered-sets of regions in the collection-set to update references,
-since all pointers that need to be updated are either root pointers or are remembered in the remembered-sets.
+since all pointers that need to be updated are either root pointers or those are remembered in the remembered-sets.
 
 At the end of the pointer updating phase, same as the full-heap tracing based
 pointer updating, the collector frees all the regions in the collection set.
@@ -500,7 +500,7 @@ dirty cards refinements, object evacuation and linear scan cards for updating re
 This brings us the ability to model the pause time for each GC, in terms of the remembered-set
 size and live bytes of each region in the collection set.
 
-Our implementation reuses the pause time prediction model that was proposed in the
+Our implementation reuses the pause time prediction model proposed in the
 original G1 paper (\cite{detlefs2004garbage}).
 
 $$
@@ -527,7 +527,7 @@ and being controlled around a reasonable value.
 
 The original design of G1 GC comes with a generational mode which collects newly allocated regions only during young GCs (\cite{detlefs2004garbage}).
 The generational collection is based on an assumption that the newly allocated objects
-has higher chances to become garbage than those objects that is survived after several GCs.
+have higher chances to become garbage than those objects that are survived after several GCs.
 
 Based on this assumption on the age of objects, the Generational G1 collector divides the regions into three generations: Eden, Survivor and Old generation,
 as shown in figure~\ref{fig:generationalg1}.
@@ -581,15 +581,15 @@ The concurrent marking phase also uses the Snapshot at the Beginning algorithm,
 which is similar to the G1 GC and the concurrent-marking region-based GC.
 After the concurrent marking phase is a concurrent remembered-set selection phase
 which is the same as the stop-the-world remembered-set selection phase
-but runs in concurrent, without pausing the mutators.
+but runs concurrently, without pausing the mutators.
 The third phase is the concurrent evacuation phase. Shenandoah GC uses the Brooks-style
 indirection pointer (\cite{flood2016shenandoah}) to evacuate objects in to-space
-in concurrent. The fourth phase is the concurrent reference updating phase, which
+concurrently. The fourth phase is the concurrent reference updating phase, which
 also performs a full heap tracing, like the stop-the-world reference updating phase,
-but runs in concurrent, under the help of the Brooks-style indirection pointers.
+but runs concurrently, under the help of the Brooks-style indirection pointers.
 
-By making the marking, evacuation and pointer updating phases run in concurrent, Shenandoah GC performs
-most of the heap scanning works in concurrent, without pausing mutators. In this way,
+By making the marking, evacuation and pointer updating phases run concurrently, Shenandoah GC performs
+most of the heap scanning works concurrently, without pausing mutators. In this way,
 Shenandoah GC can have very low pause times and the pause time is not proportional
 to the heap size.
 
@@ -610,7 +610,7 @@ by following the indirection pointer in the object header.
 
 By using the Brooks-style indirection pointers, the mutators can read and modify objects
 (by following the indirection pointers) while the collector can also evacuate these
-objects in concurrent.
+objects concurrently.
 
 \subsubsection{Read Barriers}
 
@@ -666,7 +666,7 @@ the mutator now meets the "write in the to space" invariant.
 
 \subsection{Concurrent evacuation}
 
-The evacuation phase is done mostly in concurrent. Before concurrent evacuation,
+The evacuation phase is done mostly concurrently. Before concurrent evacuation,
 the collector firstly collects and evacuate all root objects stop-the-world.
 Then during the concurrent evacuation phase, the collector linear scans each region in the
 collection set to evacuate all live objects and atomically set their indirection
@@ -681,22 +681,22 @@ pointer in this extra word.
 
 \subsubsection{Monitor objects}
 
-Monitor objects is an exception that is handled specially in the JikesRVM implementation of the Shenandoah GC.
-In JikesRVM, the JVM \textjava{monitorenter} and \textjava{monitorexit} instruction
+Monitor objects are handled specially in the JikesRVM implementation of the Shenandoah GC.
+In JikesRVM, the JVM \textjava{monitorenter} and \textjava{monitorexit} instructions
 do not triggers read barriers when locking objects, which can cause inconsistencies 
 of the lock status of the object. I modified the JikesRVM's monitor lock and unlock
 code to make them trigger the read barriers.
 
 \subsection{Concurrent updating references}
 
-Shenandoah GC also performs the update references phase in concurrent.
+Shenandoah GC also performs the update references phase concurrently.
 The implementation is similar to the concurrent marking phase, but in addition to
 concurrently marks objects again, the collector also updates the object reference fields
 for each object and make them points the correct object.
 
 Since the Java program is running during the concurrent reference updating phase,
 unconditionally update object reference fields may cause racing problems. So instead of
-unconditionally updating pointers which were used in the previous stop-the-world GCs,
+unconditionally updating pointers which is used in the previous stop-the-world GCs,
 I modified the procedure to perform
 atomic pointer updating, as shown in figure~\ref{fig:concupdaterefs},
 to avoid racing problems.
@@ -737,7 +737,7 @@ When the Java mutator is performing object reference compare and swap operations
 the collector threads can also update the pointers contained by the slot that the CAS
 is operating on. Under such situation, the CAS may fail even when there is only one mutator
 thread updating the slot since the old value hold by the object field slot is updated
-by the collector in concurrent.
+by the collector concurrently.
 
 Figure~\ref{fig:objectcasbarrier} shows the object compare and swap barrier used in Shenandoah GC.
 Instead of simply compare and swap on the old object, after the CAS on the old object failed,
@@ -754,15 +754,15 @@ another CAS operation is performed where the old value is the indirection pointe
 
 The last phase of Shenandoah GC is the concurrent cleanup phase, during which the
 collector concurrently visits each region in the collection set, clear their metadata
-and release these regions. This phase runs in concurrent without pausing mutators.
+and release these regions. This phase runs concurrently without pausing mutators.
 
 
 
 \section{Summary}
 
 This chapter identifies, explores and discusses the relationship of the G1 family of garbage collectors.
-Then each step of improvement I performed to the collector and the involved GC algorithm
-is also explained and discussed, as well as a little bit further discussion of the
+Then each step of improvement I performed over the collector and the involved GC algorithms
+are also explained and discussed, as well as a little bit further discussion of the
 pros \& cons for each structural component at an algorithmic level
 
 However, the pros and cons of several algorithms discussed in this chapter are
