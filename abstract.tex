@@ -30,11 +30,11 @@ issues due to the inappropriate GC design.
 The key contribution of this thesis is the identification of the existence of a
 structural relationship among the region-based collectors and an in-depth exploration
 of the structural relationships among a set of region-based collectors which have a similar
-design to the Garbage-First GC. In this thesis, I use the term
-"The Garbage-First Family of Garbage Collectors" to describe such category of collectors.
+design to the Garbage-first GC. In this thesis, I use the term
+"The Garbage-first Family of Garbage Collectors" to describe such category of collectors.
 
 This thesis produces the first implementation to reflect these structural relationships.
-Specifically, in this thesis, I discuss the implementation details of a total of six members of the G1 family
+Specifically, in this thesis, I built a total of six members of the G1 family
 of collectors, starting from a simple region-based
 collector to the Garbage-first GC and Shenandoah GC.
 Each collector is implemented as an improved versions of the previous collector to reflect
@@ -42,12 +42,12 @@ the corresponding algorithmic relationship.
 
 Based on such implementation, this thesis performs a detailed
 analysis of GC performance contribution of each component of the algorithms.
-These analyses include the measurement of the GC pause time, several mutator barrier overheads
+These analyses include the measurement of the GC pause time, concurrency overheads of several algorithms
 and the space overhead of remembered-sets.
 
 % Results
 
-The exploration of the Garbage-First family of garbage collectors leads to the conclusion
+The exploration of the Garbage-first family of garbage collectors leads to the conclusion
 that there exists a structural relationship among these G1 family of collectors.
 Instead of being stand-alone collectors, they tend to be collectors with
 algorithmic improvements over existing collectors.
@@ -57,9 +57,9 @@ structural components including concurrent-marking, remembered-sets, and concurr
 evacuation contributes to a reduction of 58.2\%, 41.9\%, and 84.1\%
 respectively to the 95 percentile GC pause time on the DaCapo benchmark suite.
 By using remembered-sets, G1 has 9.6\% average footprint overhead.
-Mutator barriers performance SATB barrier, remembered-set barrier,
-and Brooks barrier increases the mutator overheads by 22.0\%, 59.6\%, and 85.5\%
-respectively.
+G1 has a concurrency overhead of 22.0\% due to concurrent marking and an overhead
+of 59.6\% due to concurrent remembered-set refinements.
+Shenandoah GC has a concurrent evacuation overhead of 85.5\%.
 
 % Meaning
 
